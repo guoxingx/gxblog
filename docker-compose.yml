@@ -1,0 +1,39 @@
+version: "2"
+
+services:
+
+    backend:
+        build: ./backend
+        expose:
+            - "8080"
+              #         links:
+              #             - mysql:mysql_conn
+        environment:
+            - APP_CONFIG=${APP_CONFIG}
+            - TZ=PRC
+        volumes:
+            - ./gxblog_app:/gxblog_app
+        command: ./wsgi.py
+
+    nginx:
+        build: ./nginx
+        ports:
+            - "80:80"
+        volumes:
+            - ./frontend:/usr/share/nginx/html/frontend
+        links:
+            - backend
+
+              #     mysql:
+              #         image: mysql
+              #         command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+              #         ports:
+              #             - "3306:3306"
+              #         volumes:
+              #             - ./data/mysql/data:/var/lib/mysql
+              #         environment:
+              #             - TZ=PRC
+              #             - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+              #             - MYSQL_USER=${MYSQL_USER}
+              #             - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+              #             - MYSQL_DATABASE=${MYSQL_DATABASE}
