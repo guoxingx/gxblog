@@ -1,0 +1,7 @@
+venv
+*.pyc
+*.swp
+data/
+migrations
+tags
+node_modules
