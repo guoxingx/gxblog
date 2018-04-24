@@ -31,7 +31,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
     FLASK_DEBUG = 1
 
-    SQLALCHEMY_DATABASE_URI = 'mysql://drivers:1234@mysql_conn/drivers?charset=utf8mb4'
+    SQLALCHEMY_DATABASE_URI = 'mysql://drivers:1234@mysql/drivers?charset=utf8mb4'
     REDIS_URL = 'redis://@redis_conn/0'
     DING_NOTIFY_URL = 'https://oapi.dingtalk.com/robot/send?access_token=e4009a927ac2a1c4d99443a71be00dfdc6e96d248eba2b11ecf91989437ca3da'
 

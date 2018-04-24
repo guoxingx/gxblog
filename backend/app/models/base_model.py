@@ -26,7 +26,6 @@ def cache_class(**kw):
         def wrap(*args, **kw):
             res = func(*args, **kw)
             class_map[args[1]] = res
-            print(class_map)
             return res
         return wrap
     return decorator
@@ -47,8 +46,6 @@ def with_metaclass(metaclass, *bases):
     return type.__new__(tmp_metaclass, 'tmp_metaclass', (), {})
 
 
-# class BaseModel(object):
-#     __metaclass__ = BaseModelMetaClass
 class BaseModel(with_metaclass(BaseModelMetaClass, object)):
 
     def __init__(self, _id=None):

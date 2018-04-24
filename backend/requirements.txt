@@ -2,4 +2,9 @@ flask
 flask_restful
 flask_script
 flask_cors
+flask_sqlalchemy
+flask_migrate
+mysqlclient
 gevent
+requests
+web3

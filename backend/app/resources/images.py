@@ -13,7 +13,4 @@ class Images(BaseResource):
                   'https://img.meikew.com/uploads/2017/09/1610257d0is2vx7dvpsjdy.jpg',
                   ]
 
-        images = ['http://ac-hcebow9l.clouddn.com/a1b8a4cf6fdb7475ad05.jpg'
-                  ]
-
         return random.choice(images)
