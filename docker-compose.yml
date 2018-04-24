@@ -21,7 +21,9 @@ services:
         ports:
             - "80:80"
         volumes:
-            - ./frontend:/usr/share/nginx/html/frontend
+            # - ./frontend:/usr/share/nginx/html/frontend
+            - ./frontend/dist:/gxblog
+            - ./backend/app/static:/gxblog/resource/static
         depends_on:
             - backend
 

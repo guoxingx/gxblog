@@ -18,13 +18,13 @@ export default new Router({
       component: function (resolve) {
         require(['@/components/HelloWorld'], resolve)
       }
+    },
+    {
+      path: '/blog/:id',
+      name: 'blog',
+      component: function (resolve) {
+        require(['@/components/blog'], resolve)
+      }
     }
-    // {
-    //   path: '/blog/:id',
-    //   name: 'blog',
-    //   component: function (resolve) {
-    //     require(['@/components/blog'], resolve)
-    //   }
-    // }
   ]
 })

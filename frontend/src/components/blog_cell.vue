@@ -2,7 +2,7 @@
 
   <div class="unit">
     <el-row>
-      <el-col :xs="24" :sm="8" :md="6" :lg="5" :xl="4">
+      <el-col :xs="0" :sm="8" :md="6" :lg="5" :xl="4">
         <router-link :to="{ name: 'blog', params: { id: unit.id }}">
           <img :src="unit.image">
         </router-link>

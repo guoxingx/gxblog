@@ -4,6 +4,9 @@ flask_script
 flask_cors
 flask_sqlalchemy
 flask_migrate
+flask_admin
+flask_login
+flask_wtf
 mysqlclient
 gevent
 requests

@@ -3,12 +3,11 @@
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
 
+from .db import db
 from config import config
 
 
-db = SQLAlchemy()
 api = Api()
 
 
@@ -36,5 +35,12 @@ def create_app(config_name):
     register_api(Article, 'articles/<int:_id>')
 
     api.init_app(app)
+
+    from .admin import manager as manager_blueprint
+    manager_blueprint.url_prefix = '/admin'
+    app.register_blueprint(manager_blueprint)
+
+    from .admin import init_admin
+    init_admin(app, db)
 
     return app

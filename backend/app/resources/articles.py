@@ -1,5 +1,7 @@
 #!coding: utf-8
 
+from flask import url_for
+
 from .base import BaseResource
 
 
@@ -31,15 +33,15 @@ class Article(BaseResource):
     def get(self, _id):
         if not _id == 17261:
             return None
-        fname = 'python-stdout-buffer.md'
+        fname = 'python-stdout-buffer.html'
+        path = url_for('static', filename='blogs/{}'.format(fname))
 
-        with open('static/articles/{}'.format(fname)) as f:
-            content = f.read()
+        # content = get_file_content(fname)
         return {
             'image': 'http://ac-hcebow9l.clouddn.com/a72529f44be3cdb0d620.jpeg',
             'title': 'Python std buffer problem.',
             'tags': ['Python', '日志'],
             'summary': 'Some log issue while using "print()"',
-            'content': content or 'failed to load info.',
+            'html': path,
             'type': 'markdown',
         }

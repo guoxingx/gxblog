@@ -16,3 +16,7 @@ export function getArticleList () {
 export function getArticle (id) {
   return get('http://localhost/api/articles/' + id)
 }
+
+export function getHtml (url) {
+  return get('http://localhost' + url)
+}

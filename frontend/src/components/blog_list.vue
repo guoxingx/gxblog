@@ -1,11 +1,17 @@
 <template>
-
-  <div>
-    <div class="articles">
-      <blog-cell v-for="article in articles" :key="article" :unit="article"></blog-cell>
-    </div>
-  </div>
-
+  <el-row>
+    <el-col :xs="2" :sm="3" :md="4" :lg="5" :xl="6">
+      <div class="space left"></div>
+    </el-col>
+    <el-col :xs="20" :sm="18" :md="14" :lg="14" :xl="12">
+      <div class="articles">
+        <blog-cell v-for="article in articles" :key="article" :unit="article"></blog-cell>
+      </div>
+    </el-col>
+    <el-col :xs="2" :sm="3" :md="4" :lg="5" :xl="6">
+      <div class="space right"></div>
+    </el-col>
+  </el-row>
 </template>
 
 <script>
@@ -18,38 +24,19 @@ export default {
   },
   data () {
     return {
-      articles: null
+      articles: []
     }
   },
   created () {
     getArticleList().then(res => {
       this.articles = res.data
     })
-  },
-
-  methods: {
-    scrollEvent () {
-      var h2top = document.body.scrollTop === 0 ? document.documentElement.scrollTop : document.body.scrollTop
-
-      console.log(window.innerHeight + h2top, document.body.clientHeight)
-
-      if (window.innerHeight + h2top >= document.body.clientHeight) {
-        this.loadmore()
-      }
-    },
-
-    loadmore () {
-      console.log('loadmore')
-    }
-  },
-
-  mounted () {
-    window.addEventListener('scroll', this.scrollEvent)
-  },
-
-  destroyed () {
-    window.removeEventListener('scroll', this.scrollEvent)
   }
-
 }
 </script>
+
+<style>
+.articles {
+  text-align: center;
+}
+</style>
