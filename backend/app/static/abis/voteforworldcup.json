@@ -1,0 +1,115 @@
+[{
+    "constant": false,
+    "inputs": [
+        {
+            "name": "teamIndex",
+            "type": "uint256"
+        }
+    ],
+    "name": "vote",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "constant": true,
+    "inputs": [
+        {
+            "name": "",
+            "type": "uint256"
+        }
+    ],
+    "name": "participants",
+    "outputs": [
+        {
+            "name": "name",
+            "type": "bytes32"
+        },
+        {
+            "name": "voteCount",
+            "type": "uint256"
+        },
+        {
+            "name": "result",
+            "type": "uint8"
+        },
+        {
+            "name": "out",
+            "type": "bool"
+        }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "constant": true,
+    "inputs": [
+        {
+            "name": "",
+            "type": "address"
+        }
+    ],
+    "name": "voters",
+    "outputs": [
+        {
+            "name": "voted",
+            "type": "bool"
+        },
+        {
+            "name": "vote",
+            "type": "uint256"
+        }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "constant": false,
+    "inputs": [
+        {
+            "name": "teamIndex",
+            "type": "uint256"
+        },
+        {
+            "name": "result",
+            "type": "uint8"
+        },
+        {
+            "name": "out",
+            "type": "bool"
+        }
+    ],
+    "name": "setResult",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+},
+{
+    "constant": true,
+    "inputs": [],
+    "name": "host",
+    "outputs": [
+        {
+            "name": "",
+            "type": "address"
+        }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+},
+{
+    "inputs": [
+        {
+            "name": "participantNames",
+            "type": "bytes32[]"
+        }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+}]
