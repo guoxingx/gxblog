@@ -156,12 +156,17 @@ class ManagerConnector(IdentityConnector):
 
 
 if __name__ == '__main__':
-    coon = Connector()
+    import time
+    account = '0x39bbc3788130827bbaba742fd3c41fb5b5ce82b8'
+    for i in range(10):
+        res = draw(account)
+        print(res)
+        time.sleep(10)
 
-    account = coon.create_account('3')
-    print('account {} created.'.format(account))
+    # coon = Connector()
 
-    res = draw(account)
-    print('draw from faucet ', res)
+    # account = coon.create_account('3')
+    # print('account {} created.'.format(account))
 
-    # conn = ManagerConnector('1')
+    # res = draw(account)
+    # print('draw from faucet ', res)
