@@ -1,14 +1,19 @@
 #!coding: utf-8
 
-import requests
+import os
+import asyncio
 import functools
 
+import requests
 from web3 import Web3, HTTPProvider
 from hexbytes.main import HexBytes
 from eth_utils import to_checksum_address
 
 
 def draw(account):
+    """
+    获取免费的testnet ether
+    """
     url = 'https://faucet.metamask.io/'
     headers = {'content-type': 'application/rawdata'}
     res = requests.post(url, data=account, headers=headers).text
@@ -16,18 +21,27 @@ def draw(account):
 
 
 def to_checked_address(address):
+    """
+    非混合大小写的addres会报错，不知道是否是bug
+    将address转换成混合大小写
+    """
     res = to_checksum_address(address)
-    if res.lower() == address:
+    if res.lower() == address or res.upper() == address:
         return res
+    return address
 
 
 def unlock_required(func):
+    """
+    返回未解锁错误的时候
+    执行解锁并重试
+    """
     @functools.wraps(func)
     def wrapper(*args, **kw):
         try:
             res = func(*args, **kw)
         except ValueError as e:
-            if locked_exception(e):
+            if _locked_exception(e):
                 ins = args[0]
                 try_unlock(ins, kw)
                 res = func(*args, **kw)
@@ -36,11 +50,16 @@ def unlock_required(func):
     return wrapper
 
 
-def locked_exception(error):
+def _locked_exception(error):
+    """
+    Catch unlocked exception.
+    """
     return error.args[0].get('code') == -32000
 
 
 def try_unlock(instance, kw):
+    """
+    """
     account = kw.get('from') or kw.get('from_')
     password = kw.get('password')
 
@@ -67,6 +86,8 @@ class Connector(object):
         """
         self._w3 = Web3(HTTPProvider(url or Connector.DefaultHTTPRPCAddr))
 
+        self.auto_mine_in_test()
+
     def create_account(self, password):
         address = self._w3.personal.newAccount('password')
         return address
@@ -82,11 +103,18 @@ class Connector(object):
         res = self._w3.eth.sendTransaction(kw)
         return self._w3.toHex(res)
 
-    def deploy_contract(self, **kw):
+    def to_wei(self, amount, unit):
+        return self._w3.toWei(amount, unit)
+
+    def deploy_contract(self, abi):
         """
         Until next time
         """
-        NotImplementedError
+        Contract = self._w3.eth.contract(abi=abi)
+        tx_hash = Contract.deploy()
+        tx_receipt = self._w3.eth.getTransactionReceipt(tx_hash)
+        contract_address = tx_receipt['contractAddress']
+        return contract_address
 
     def load_contract(self, address, abi):
         """
@@ -105,7 +133,7 @@ class Connector(object):
         try:
             res = func.transact(kw)
         except ValueError as e:
-            if locked_exception(e):
+            if _locked_exception(e):
                 try_unlock(self, kw)
                 res = func.transact(kw)
         finally:
@@ -121,13 +149,37 @@ class Connector(object):
         try:
             res = func.call(kw)
         except ValueError as e:
-            if locked_exception(e):
+            if _locked_exception(e):
                 try_unlock(self, kw)
                 res = func.call(kw)
         finally:
             if isinstance(res, HexBytes):
                 res = self._w3.toHex(res)
             return res
+
+    def auto_mine_in_test(self):
+        eth_mode = os.environ.get('ETH_MODE') or 'test'
+        if eth_mode != 'test':
+            return
+
+        async def event_loop(event_filter, poll_interval):
+            while True:
+                eth = self._w3.eth
+                miner = self._w3.miner
+                if len(eth.getBlock('pending').transactions) > 0:
+                    if not eth.mining:
+                        miner.start(1)
+                else:
+                    if eth.mining:
+                        miner.stop()
+                await asyncio.sleep(poll_interval)
+
+        tx_filter = self._w3.eth.filter('pending')
+        loop = asyncio.get_event_loop()
+        try:
+            loop.run_until_complete(asyncio.gather(event_loop(tx_filter, 2)))
+        finally:
+            loop.close()
 
 
 class IdentityConnector(Connector):
@@ -156,14 +208,9 @@ class ManagerConnector(IdentityConnector):
 
 
 if __name__ == '__main__':
-    import time
-    account = '0x39bbc3788130827bbaba742fd3c41fb5b5ce82b8'
-    for i in range(10):
-        res = draw(account)
-        print(res)
-        time.sleep(10)
-
-    # coon = Connector()
+    coon = Connector()
+    print(coon._w3.eth.accounts)
+    print(coon._w3.eth.filter)
 
     # account = coon.create_account('3')
     # print('account {} created.'.format(account))

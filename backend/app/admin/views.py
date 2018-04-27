@@ -12,7 +12,7 @@ from ..utils import form_by_json_request, db_commit
 from ..models import User, Role
 
 
-class WCDModelView(ModelView):
+class BaseModelView(ModelView):
 
     def is_accessible(self):
         if not current_user.is_active or not current_user.is_authenticated:
@@ -24,7 +24,7 @@ class WCDModelView(ModelView):
         return False
 
     def inaccessible_callback(self, *args, **kw):
-        return redirect(url_for('backend.login', next=request.url))
+        return redirect(url_for('main.login', next=request.url))
 
 
 class SettingView(BaseView):
@@ -62,7 +62,7 @@ class SettingView(BaseView):
                            assert_url=lambda name: url_for('static', filename='asserts/{}'.format(name)))
 
 
-class UserView(WCDModelView):
+class UserView(BaseModelView):
     can_delete = False
     column_list = ('username',)
     column_details_exclude_list = ('password',)
@@ -79,7 +79,7 @@ def create_admin():
 
     user = User.query.filter_by(username=username).first()
     if not user:
-        user = User(username=username, openid=username, password=password)
+        user = User(username=username, password=password)
         db.session.add(user)
 
     Role.add_role(user, 'admin')
@@ -89,7 +89,7 @@ def create_admin():
 @manager.route('/', methods=['GET'])
 def index():
     if not current_user.is_authenticated:
-        return redirect(url_for('backend.login'))
+        return redirect(url_for('manager.login'))
     return render_template('admin/custom/index.html')
 
 
@@ -117,7 +117,7 @@ def login():
         else:
             flash('Failed to login. username or password error.', 'error')
 
-    return render_template('admin/custom/login.html', login_user_form=form)
+    return render_template('admin/login.html', login_user_form=form)
 
 
 @manager.route('/logout', methods=['GET', 'POST'])

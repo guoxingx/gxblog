@@ -32,15 +32,13 @@ class Role(BaseModel, RoleMixin):
 
     @classmethod
     def add_role(cls, user, rolename):
-        from .. import user_datastore
-        role = user_datastore.find_or_create_role(rolename)
-        user_datastore.add_role_to_user(user, role)
-
-    @classmethod
-    def remove_role(cls, user, rolename):
-        from .. import user_datastore
-        role = user_datastore.find_or_create_role(rolename)
-        user_datastore.remove_role_from_user(user, role)
+        role = cls.query.filter_by(name=rolename).first()
+        if not role:
+            role = cls(name=rolename)
+            db.session.add(role)
+            db.session.commit()
+        role.users.append(user)
+        db.session.commit()
 
 
 class User(BaseModel, UserMixin):
@@ -48,4 +46,10 @@ class User(BaseModel, UserMixin):
     password = db.Column(db.String(255), default=time.time())
 
     roles = db.relationship('Role', secondary=user_role,
-                            backref=db.backref('user', lazy='dynamic'))
+                            backref=db.backref('users', lazy='dynamic'))
+
+    def has_role(self, rolename):
+        for role in self.roles:
+            if role.name == rolename:
+                return True
+        return False

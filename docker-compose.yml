@@ -8,6 +8,7 @@ services:
             - "8080"
         environment:
             - APP_CONFIG=${APP_CONFIG}
+            - ETH_MODE=${ETH_MODE}
             - TZ=PRC
         volumes:
             - ./gxblog_app:/gxblog_app
@@ -32,20 +33,28 @@ services:
         ports:
             - "8545:8545"
             - "30303:30303"
+        environment:
+            - ETH_MODE=${ETH_MODE}
+            - TZ=PRC
         volumes:
-            - /Users/wuyi/Library/Ethereum/:/root
-        command: "--testnet --rpc --rpcaddr 0.0.0.0 --syncmode light"
+            - ./data/ethereum/pro:/root/pro
+            - ./data/ethereum/dev:/root/dev
+            - ./eth_test:/root/test
+            - ./run_eth.sh:/root/run_eth.sh
+        # command: bash /root/run_eth.sh
+        # command: "--testnet --rpc --rpcaddr 0.0.0.0 --syncmode light"
+        command: "--datadir /root/test/data --rpc --rpcaddr 0.0.0.0 --rpcapi eth,net,web3,personal,miner"
 
     mysql:
         image: mysql
         command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
         ports:
             - "3306:3306"
-        volumes:
-            - ./data/mysql/data:/var/lib/mysql
         environment:
             - TZ=PRC
             - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
             - MYSQL_USER=${MYSQL_USER}
             - MYSQL_PASSWORD=${MYSQL_PASSWORD}
             - MYSQL_DATABASE=${MYSQL_DATABASE}
+        volumes:
+            - ./data/mysql:/var/lib/mysql
