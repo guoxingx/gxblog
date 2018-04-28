@@ -5,7 +5,7 @@ services:
     backend:
         build: ./backend
         expose:
-            - "8080"
+            - "8000"
         environment:
             - APP_CONFIG=${APP_CONFIG}
             - ETH_MODE=${ETH_MODE}

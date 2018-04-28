@@ -13,7 +13,7 @@
     <link href="https://cdn.bootcss.com/bootstrap/4.1.0/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
-<body>
+<body class="bg-light">
     {% block body %} {% endblock %} 
 </body>
 
@@ -21,6 +21,15 @@
 <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.slim.min.js"></script>
 <script src="https://cdn.bootcss.com/popper.js/1.14.3/esm/popper.min.js"></script>
 <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+function getUrlParam(key) {
+    var url = new URL(window.location)
+    return url.searchParams.get(key)
+}
+
+</script>
 
 <style type="text/css">
 

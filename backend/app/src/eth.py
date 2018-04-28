@@ -1,11 +1,11 @@
 #!coding: utf-8
 
 import os
-import asyncio
 import functools
 
 import requests
 from web3 import Web3, HTTPProvider
+from solc import compile_source
 from hexbytes.main import HexBytes
 from eth_utils import to_checksum_address
 
@@ -62,6 +62,7 @@ def try_unlock(instance, kw):
     """
     account = kw.get('from') or kw.get('from_')
     password = kw.get('password')
+    print(account, password)
 
     if not account:
         try:
@@ -86,8 +87,6 @@ class Connector(object):
         """
         self._w3 = Web3(HTTPProvider(url or Connector.DefaultHTTPRPCAddr))
 
-        self.auto_mine_in_test()
-
     def create_account(self, password):
         address = self._w3.personal.newAccount('password')
         return address
@@ -106,14 +105,20 @@ class Connector(object):
     def to_wei(self, amount, unit):
         return self._w3.toWei(amount, unit)
 
-    def deploy_contract(self, abi):
+    # def deploy_contract(self, abi):
+    def deploy_contract(self, abi, bytecode, *args, **kw):
         """
         Until next time
         """
-        Contract = self._w3.eth.contract(abi=abi)
-        tx_hash = Contract.deploy()
+        contract = self._w3.eth.contract(abi=abi, bytecode=bytecode)
+        print(contract)
+        print(args)
+        tx_hash = contract.constructor(*args).transact(kw)
+        print(tx_hash)
         tx_receipt = self._w3.eth.getTransactionReceipt(tx_hash)
+        print(tx_receipt)
         contract_address = tx_receipt['contractAddress']
+        print(contract_address)
         return contract_address
 
     def load_contract(self, address, abi):
@@ -123,6 +128,7 @@ class Connector(object):
             abi_json = f.read()
         contract = conn._w3.eth.contract(address=address, abi=abi_json)
         """
+        address = to_checked_address(address)
         return self._w3.eth.contract(address=address, abi=abi)
 
     def transact(self, func, **kw):
@@ -146,6 +152,7 @@ class Connector(object):
         获取合约参数
         res = conn.call(contract.functions.host())
         """
+        return func.call(kw)
         try:
             res = func.call(kw)
         except ValueError as e:
@@ -158,28 +165,22 @@ class Connector(object):
             return res
 
     def auto_mine_in_test(self):
+        """
+        """
         eth_mode = os.environ.get('ETH_MODE') or 'test'
         if eth_mode != 'test':
             return
 
-        async def event_loop(event_filter, poll_interval):
-            while True:
-                eth = self._w3.eth
-                miner = self._w3.miner
-                if len(eth.getBlock('pending').transactions) > 0:
-                    if not eth.mining:
-                        miner.start(1)
-                else:
-                    if eth.mining:
-                        miner.stop()
-                await asyncio.sleep(poll_interval)
-
-        tx_filter = self._w3.eth.filter('pending')
-        loop = asyncio.get_event_loop()
-        try:
-            loop.run_until_complete(asyncio.gather(event_loop(tx_filter, 2)))
-        finally:
-            loop.close()
+        eth = self._w3.eth
+        miner = self._w3.miner
+        if len(eth.getBlock('pending').transactions) > 0:
+            if not eth.mining:
+                print('start mine')
+                miner.start(1)
+        else:
+            if eth.mining:
+                print('stop mine')
+                miner.stop()
 
 
 class IdentityConnector(Connector):
@@ -201,16 +202,33 @@ class IdentityConnector(Connector):
 
 class ManagerConnector(IdentityConnector):
 
-    def __init__(self, password, url=None):
+    def __init__(self, url=None):
+        password = os.environ.get('ETH_DEFAULT_ACCOUNT_PASSWORD')
         IdentityConnector.__init__(self, None, password, url)
         self._account = self._w3.eth.coinbase
         self._w3.eth.defaultAccount = self.account
 
 
 if __name__ == '__main__':
-    coon = Connector()
-    print(coon._w3.eth.accounts)
-    print(coon._w3.eth.filter)
+    pass
+    # from apscheduler.schedulers.blocking import BlockingScheduler
+    # import time
+
+    # # 实例化一个调度器
+    # scheduler = BlockingScheduler()
+
+    # def job1():
+    #     print ("%s: 执行任务"  % time.asctime()
+
+    # # 添加任务并设置触发方式为3s一次
+    # scheduler.add_job(job1, 'interval', seconds=3)
+
+    # # 开始运行调度器
+    # scheduler.start()
+
+    # coon = Connector()
+    # print(coon._w3.eth.accounts)
+    # print(coon._w3.eth.filter)
 
     # account = coon.create_account('3')
     # print('account {} created.'.format(account))

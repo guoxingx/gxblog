@@ -1,0 +1,164 @@
+{% extends "base.html" %} 
+
+{% block title %} GXBLOG {% endblock %} 
+
+{% block head %} 
+{{ super() }}
+{% endblock %}
+
+{% block body %}
+
+<div class="main">
+
+<div class="row">
+    <div class="col-md-4 order-md-2 mb-4">
+        <h4 class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-muted">Game Data</span>
+            <span class="badge badge-secondary badge-pill">{{ boe_list | length }}</span>
+        </h4>
+        <ul class="list-group mb-3">
+            {% for boe in boe_list %}
+                <li class="list-group-item d-flex justify-content-between lh-condensed">
+                    <div>
+                        <a href="?id={{ boe.id }}">
+                            <h6 class="my-0">{{ boe.home }} vs {{ boe.visiting }}</h6>
+                        </a>
+                        <small class="text-muted">{{ boe.opening_time.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                    </div>
+                    <span class="text-muted">
+                        {% if boe.has_contract %} Contract {% endif %}
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col-md-8 order-md-1">
+
+        <h2>Game Info</h2>
+        <hr>
+        <form class="form-submit" method="POST" action="">
+            <div class="row mb-3">
+                <div class="col-sm-5">
+                    <label>Home Team</label>
+                    <input type="text" class="form-control" name="home" value="{{ boe.home }}">
+                </div>
+                <div class="col-sm-7">
+                    <label>Home Team Image</label>
+                    <input type="text" class="form-control" name="home_image" value="{{ boe.home_image }}">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-sm-5">
+                    <label>Visiting Team</label>
+                    <input type="text" class="form-control" name="visiting"  value="{{ boe.visiting }}">
+                </div>
+                <div class="col-sm-7">
+                    <label>Visiting Team Image</label>
+                    <input type="text" class="form-control" name="visiting_image"  value="{{ boe.visiting_image }}">
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-sm-4">
+                    <label>League</label>
+                    <input type="text" class="form-control" name="league"  value="{{ boe.league }}">
+                </div>
+                <div class="col-sm-4">
+                    <label>Round</label>
+                    <input type="text" class="form-control" name="round"  value="{{ boe.round }}">
+                </div>
+                <div class="col-sm-4">
+                    <label>Opening Time</label>
+                    <input type="text" class="form-control" name="opening_time" value="{{ boe.opening_time.strftime('%Y-%m-%d %H:%M:%S') if boe.opening_time else '' }}"">
+                </div>
+            </div>
+
+            <hr class="mb-4">
+            <input name="action" value="create" hidden>
+            <button class="btn btn-info btn-lg btn-block mb-3" type="submit">Insert Data</button>
+        </form>
+
+        {% if boe %}
+        <form class="form-submit" method="POST" action="">
+            <h2>Contract Info</h2>
+            <hr>
+
+            <div class="row mb-3">
+                <div class="col-sm-12">
+                    <label>Address</label>
+                    <input type="text" class="form-control" name="address" value="{{ boe.contract_address or 'Not Deployed' }}" disabled>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-sm-12">
+                    <label>Earnest Money (In Ether)</label>
+                    <input type="number" class="form-control" name="earnest_money" value="{{ boe.earnest_money }}">
+                </div>
+            </div>
+
+            <h5>Odds (x 1000)</h5>
+            <div class="row mb-3">
+                <div class="col-sm-4">
+                    <label>Win</label>
+                    <input type="number" class="form-control" name="win_odds" value="{{ boe.win_odds }}">
+                </div>
+                <div class="col-sm-4">
+                    <label>Draw</label>
+                    <input type="number" class="form-control" name="draw_odds" value="{{ boe.draw_odds }}">
+                </div>
+                <div class="col-sm-4">
+                    <label>Lose</label>
+                    <input type="number" class="form-control" name="lose_odds" value="{{ boe.lose_odds }}">
+                </div>
+            </div>
+
+            <hr class="mb-4">
+            {% if boe.has_contract %}
+                <input name="action" value="alter" hidden>
+                <button class="btn btn-primary btn-lg btn-block mb-3" type="submit">Alter Contract !</button>
+            {% else %}
+                <input name="action" value="deploy" hidden>
+                <button class="btn btn-primary btn-lg btn-block mb-3" type="submit">Deploy Contract !</button>
+            {% endif %}
+        </form>
+
+        {% endif %}
+
+        <form class="form-submit" method="POST" action="">
+            <h2>Load From Address</h2>
+            <hr>
+
+            <div class="row mb-3">
+                <div class="col-sm-12">
+                    <label>Address</label>
+                    <input type="text" class="form-control" name="address" value="{{ boe.contract_address or '' }}" required="">
+                </div>
+            </div>
+
+            <hr class="mb-4">
+            <input name="action" value="load" hidden>
+            <button class="btn btn-success btn-lg btn-block mb-3" type="submit" {% if boe and boe.has_contract %} disabled {% endif %}>Load Contract !</button>
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+
+<style>
+.main {
+    margin: 0 auto;
+    margin-top: 20px;
+    padding: 10px;
+    max-width: 1000px;
+}
+.form-submit {
+    margin-bottom: 40px;
+}
+</style>
+{% endblock %}

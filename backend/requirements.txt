@@ -11,3 +11,4 @@ mysqlclient
 gevent
 requests
 web3
+py-solc

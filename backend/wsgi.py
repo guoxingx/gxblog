@@ -18,6 +18,6 @@ if __name__ == '__main__':
     def run():
         app.debug = True
         application = DebuggedApplication(app, evalex=True)
-        server = WSGIServer(('0.0.0.0', 8080), application)
+        server = WSGIServer(('0.0.0.0', 8000), application)
         server.serve_forever()
     run()

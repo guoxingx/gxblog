@@ -1,22 +1,27 @@
 
+import time
+
 from .base import BaseModel
 from .. import db
 from ..src.eth import ManagerConnector, IdentityConnector, Connector
 from ..utils import get_static_dir
 
 
-AbiFile = 'betonether.json'
+AbiFile = 'betonether_abi.json'
+ByteCodeFile = 'betonether_bytecode.json'
 
 
 class BetOnEther(BaseModel):
     home = db.Column(db.String(63))
+    home_image = db.Column(db.String(255))
     visiting = db.Column(db.String(63))
+    visiting_image = db.Column(db.String(255))
     opening_time = db.Column(db.TIMESTAMP(timezone=True))
     league = db.Column(db.String(63))
     round = db.Column(db.String(63))
-    win_odds = db.Column(db.Float())
-    draw_odds = db.Column(db.Float())
-    lose_odds = db.Column(db.Float())
+    win_odds = db.Column(db.Integer())
+    draw_odds = db.Column(db.Integer())
+    lose_odds = db.Column(db.Integer())
 
     has_contract = db.Column(db.Boolean())
     contract_address = db.Column(db.String(63))
@@ -31,13 +36,18 @@ class BetOnEther(BaseModel):
     ended = db.Column(db.Boolean())
 
     @property
+    def bytecode_text(self):
+        with open(get_static_dir('contracts/{}'.format(ByteCodeFile))) as f:
+            return f.read().encode()
+
+    @property
     def abi_text(self):
-        with open(get_static_dir('abis/{}'.format(AbiFile))) as f:
+        with open(get_static_dir('contracts/{}'.format(AbiFile))) as f:
             return f.read()
 
     @property
     def contract_init_params(self):
-        pass
+        return {}
 
     @property
     def contract(self):
@@ -49,47 +59,83 @@ class BetOnEther(BaseModel):
 
     def sync_data(self, contract=None):
         if self.has_contract and contract is None:
-            contract = self.load_contract()
+            contract = self.load_contract(sync_data=False)
 
-        self.host = contract.call(contract.functions.host())
-        self.pool = contract.call(contract.functions.pool())
-        self.earnest_money = contract.call(contract.functions.earnestMoney())
-        self.balance = contract.call(contract.functions.balance())
-        self.win_bonus = contract.call(contract.functions.bonuss(0))
-        self.draw_bonus = contract.call(contract.functions.bonuss(1))
-        self.lose_odds = contract.call(contract.functions.bonuss(2))
-        self.ended = contract.call(contract.functions.ended())
+        conn = ManagerConnector()
+        # self.contract_address = conn.call(contract.address)
+        self.host = conn.call(contract.functions.host())
+        self.pool = conn.call(contract.functions.pool())
+        self.earnest_money = int(conn.call(contract.functions.earnestMoney()) / (10 ** 15))
+        self.balance = int(conn.call(contract.functions.balance()) / (10 ** 15))
+        self.win_odds = conn.call(contract.functions.oddss(0))
+        self.draw_odds = conn.call(contract.functions.oddss(1))
+        self.lose_odds = conn.call(contract.functions.oddss(2))
+        self.win_bonus = int(conn.call(contract.functions.bonuss(0)) / (10 ** 15))
+        self.draw_bonus = int(conn.call(contract.functions.bonuss(1)) / (10 ** 15))
+        self.lose_bonus = int(conn.call(contract.functions.bonuss(2)) / (10 ** 15))
+        self.ended = conn.call(contract.functions.ended())
 
         db.session.add(self)
         db.session.commit()
 
         self._contract = contract
 
-    def create_contract(self):
+    def deploy(self, earnest_money, win_odds, draw_odds, lose_odds):
+        """
+        not yet
+        """
         if self.has_contract:
-            return
+            return 0
 
         self.has_contract = True
         db.session.add(self)
         db.session.commit()
 
+        remarks = '{}-{}'.format(self.league, self.round)
+        oddss = [int(win_odds), int(draw_odds), int(lose_odds)]
+        bet_time = int(self.opening_time.timestamp() - time.time() - 3600)
+        if bet_time < 3600:
+            return 1
+        game_time = 3600 * 2
+
+        conn = ManagerConnector()
+        contract = conn.deploy_contract(self.abi_text, self.bytecode_text,
+            self.home, self.visiting,
+            self.league, oddss,
+            bet_time, game_time,
+            str(self.id),
+            value=earnest_money * (10 ** 18))
+        print(contract)
+        return
+
         try:
-            coon = ManagerConnector()
-            contract = coon.deploy_contract(self.abi_text, **self.contract_init_params)
+            conn = ManagerConnector()
+            contract = conn.deploy_contract(self.abi_text, self.bytecode_text, **self.contract_init_params)
+            print(contract)
 
             self.sync_data(contract)
         except Exception as e:
+            print(e)
             self.has_contract = False
             db.session.add(self)
             db.session.commit()
 
-    def load_contract(self):
-        if not self.has_contract:
-            return
+    def load_contract(self, address=None, sync_data=True):
+        print('load', self.has_contract, address)
+        if self.has_contract:
+            pass
 
         coon = ManagerConnector()
-        contract = coon.load_contract(self.contract_address, self.abi_text)
-        return contract
+        contract = coon.load_contract(address or self.contract_address, self.abi_text)
+
+        if contract:
+            self.has_contract = True
+            self.contract_address = contract.address
+            db.session.add(self)
+            db.session.commit()
+            if sync_data:
+                self.sync_data(contract)
+            return contract
 
     def bet(self, beton, amount, account, password):
         conn = IdentityConnector(account, password)
@@ -120,3 +166,28 @@ class BetOnEther(BaseModel):
         bet = coon.call(self.contract.functions.bets(account, 0))
         res.append(bet)
         return res
+
+    def to_json(self):
+        return dict(
+            id=self.id,
+            home=self.home,
+            home_image=self.home_image,
+            visiting=self.visiting,
+            visiting_image=self.visiting_image,
+            opening_time=self.opening_time.strftime('%Y-%m-%d %H:%M:%S'),
+            league=self.league,
+            round=self.round,
+            win_odds=self.win_odds,
+            draw_odds=self.draw_odds,
+            lose_odds=self.lose_odds,
+            has_contract=self.has_contract,
+            contract_address=self.contract_address,
+            host=self.host,
+            pool=self.pool,
+            earnest_money=self.earnest_money,
+            balance=self.balance,
+            win_bonus=self.win_bonus,
+            draw_bonus=self.draw_odds,
+            lose_bonus=self.lose_bonus,
+            ended=self.ended
+        )

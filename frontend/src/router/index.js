@@ -25,6 +25,13 @@ export default new Router({
       component: function (resolve) {
         require(['@/components/blog'], resolve)
       }
+    },
+    {
+      path: '/betonether/:id',
+      name: 'betonether',
+      component: function (resolve) {
+        require(['@/components/betonether'], resolve)
+      }
     }
   ]
 })
