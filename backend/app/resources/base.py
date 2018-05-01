@@ -5,6 +5,7 @@ from flask import abort, request
 from flask.views import MethodViewType
 from flask_restful import Resource
 from flask_login import current_user
+from werkzeug.datastructures import MultiDict
 
 
 def login_required(func):
@@ -31,6 +32,18 @@ def json_required():
             return response
         return decorator
     return wrapper
+
+
+def form_by_json_request(form_class):
+    return get_form(form_class, request.json or request.form)
+
+
+def get_form(form_class, _dict):
+    data = {}
+    for k, v in _dict.items():
+        if v is not None:
+            data[k] = v
+    return form_class(MultiDict(data))
 
 
 class BaseResourceMeta(MethodViewType):

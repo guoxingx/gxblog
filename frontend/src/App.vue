@@ -2,7 +2,9 @@
 <template>
   <div id="app">
     <div class="main">
-      <router-view/>
+      <!-- <keep-alive> -->
+        <router-view/>
+      <!-- </keep-alive> -->
     </div>
     <!-- <gFooter></gFooter> -->
   </div>

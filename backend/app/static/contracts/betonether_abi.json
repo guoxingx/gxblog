@@ -222,10 +222,6 @@
 				"type": "bytes32"
 			},
 			{
-				"name": "outerId",
-				"type": "bytes32"
-			},
-			{
 				"name": "result",
 				"type": "uint256"
 			}
@@ -308,7 +304,7 @@
 				"type": "uint256"
 			},
 			{
-				"name": "outerId",
+				"name": "_outerId",
 				"type": "bytes32"
 			}
 		],

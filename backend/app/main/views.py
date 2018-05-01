@@ -94,6 +94,13 @@ def betonether():
                 db.session.add(boe)
                 db.session.commit()
 
+        elif action == 'confirm':
+            result = request.form.get('result')
+            boe.confirm(int(result))
+
+        elif action == 'clear':
+            boe.clear()
+
     boe_list = BetOnEther.query.all()
     if boe and boe.has_contract:
         boe.sync_data()

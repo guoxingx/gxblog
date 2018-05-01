@@ -42,8 +42,8 @@ services:
             - ./eth_test:/root/test
             - ./run_eth.sh:/root/run_eth.sh
         # command: bash /root/run_eth.sh
-        # command: "--testnet --rpc --rpcaddr 0.0.0.0 --syncmode light"
-        command: "--datadir /root/test/data --rpc --rpcaddr 0.0.0.0 --rpcapi eth,net,web3,personal,miner"
+        command: "--datadir /root/dev --testnet --syncmode light --rpc --rpcaddr 0.0.0.0 --rpcapi eth,net,web3,personal"
+        # command: "--datadir /root/test/data --rpc --rpcaddr 0.0.0.0 --rpcapi eth,net,web3,personal,miner"
 
     mysql:
         image: mysql

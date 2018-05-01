@@ -5,9 +5,25 @@ import functools
 
 import requests
 from web3 import Web3, HTTPProvider
+from web3.auto import w3
 from solc import compile_source
 from hexbytes.main import HexBytes
 from eth_utils import to_checksum_address
+
+
+def auto_mine():
+    """
+    """
+    eth = w3.eth
+    miner = w3.miner
+    if len(eth.getBlock('pending').transactions) > 0:
+        if not eth.mining:
+            print('start mine')
+            miner.start(1)
+    else:
+        if eth.mining:
+            print('stop mine')
+            miner.stop()
 
 
 def draw(account):
@@ -29,6 +45,9 @@ def to_checked_address(address):
     if res.lower() == address or res.upper() == address:
         return res
     return address
+
+
+# 以下都是多余的！
 
 
 def unlock_required(func):
@@ -94,6 +113,10 @@ class Connector(object):
     def unlock(self, account, password):
         return self._w3.personal.unlockAccount(account, password)
 
+    @property
+    def w3(self):
+        return self._w3
+
     @unlock_required
     def send_transaction(self, **kw):
         """
@@ -152,7 +175,10 @@ class Connector(object):
         获取合约参数
         res = conn.call(contract.functions.host())
         """
-        return func.call(kw)
+        print(func, kw)
+        res = func.call(kw)
+        print(res, type(res))
+        return res
         try:
             res = func.call(kw)
         except ValueError as e:
@@ -163,24 +189,6 @@ class Connector(object):
             if isinstance(res, HexBytes):
                 res = self._w3.toHex(res)
             return res
-
-    def auto_mine_in_test(self):
-        """
-        """
-        eth_mode = os.environ.get('ETH_MODE') or 'test'
-        if eth_mode != 'test':
-            return
-
-        eth = self._w3.eth
-        miner = self._w3.miner
-        if len(eth.getBlock('pending').transactions) > 0:
-            if not eth.mining:
-                print('start mine')
-                miner.start(1)
-        else:
-            if eth.mining:
-                print('stop mine')
-                miner.stop()
 
 
 class IdentityConnector(Connector):
@@ -211,21 +219,6 @@ class ManagerConnector(IdentityConnector):
 
 if __name__ == '__main__':
     pass
-    # from apscheduler.schedulers.blocking import BlockingScheduler
-    # import time
-
-    # # 实例化一个调度器
-    # scheduler = BlockingScheduler()
-
-    # def job1():
-    #     print ("%s: 执行任务"  % time.asctime()
-
-    # # 添加任务并设置触发方式为3s一次
-    # scheduler.add_job(job1, 'interval', seconds=3)
-
-    # # 开始运行调度器
-    # scheduler.start()
-
     # coon = Connector()
     # print(coon._w3.eth.accounts)
     # print(coon._w3.eth.filter)

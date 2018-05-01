@@ -9,6 +9,7 @@ contract BetOnEther {
     uint[3] public bonuss;    // [w d l] 对应总奖金
     uint[3] public oddss;     // [w d l] 赔率
     bool public ended;        // 游戏已结束
+    bytes32 outerId;   // 链外ID
 
     // 比赛结果
     enum Result { Win, Draw, Lose }
@@ -18,8 +19,7 @@ contract BetOnEther {
         bytes32 home;      // 主队
         bytes32 visiting;  // 客队
         bytes32 remarks;   // 备注 比如开赛时间，赛事系列
-        bytes32 outerId;   // 链外ID
-        uint result;     // 比赛结果
+        uint result;       // 比赛结果
     }
 
     Game public game;
@@ -57,15 +57,16 @@ contract BetOnEther {
         require (!ended); 
         _; 
     }
-    
+
 
     /// 创建
     constructor (bytes32 _home, bytes32 _visiting,
                  bytes32 _remarks, uint[3] _oddss,
                  uint _betTime, uint _gameTime,
-                 bytes32 outerId) public payable {
+                 bytes32 _outerId) public payable {
         host = msg.sender;
         oddss = _oddss;
+        outerId = _outerId;
 
         betEnd = now + _betTime;
         gameEnd = betEnd + _gameTime;
@@ -78,7 +79,6 @@ contract BetOnEther {
         game.home = _home;
         game.visiting = _visiting;
         game.remarks = _remarks;
-        game.outerId = outerId;
     }
 
     /// Input earnestMoney
@@ -133,7 +133,7 @@ contract BetOnEther {
         uint length = bets[msg.sender].length;
         uint amount = 0;
         
-        for (uint i = 1; i < length; i ++) {
+        for (uint i = 0; i < length; i ++) {
             var _bet = bets[msg.sender][i];
             if ((_bet.result == game.result) && !_bet.withdrawed) {
                 amount += _bet.profit;

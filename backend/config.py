@@ -21,6 +21,7 @@ class Config(object):
 
     ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME')
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+    ETH_COINBASE_PASSWORD = os.environ.get('ETH_COINBASE_PASSWORD')
 
 
 class TestConfig(Config):

@@ -23,7 +23,7 @@
                         <a href="?id={{ boe.id }}">
                             <h6 class="my-0">{{ boe.home }} vs {{ boe.visiting }}</h6>
                         </a>
-                        <small class="text-muted">{{ boe.opening_time.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                        <small class="text-muted">{{ boe.opening_time.strftime('%Y-%m-%d %H:%M:%S') if boe.opening_time else '' }}</small>
                     </div>
                     <span class="text-muted">
                         {% if boe.has_contract %} Contract {% endif %}
@@ -92,9 +92,17 @@
             </div>
 
             <div class="row mb-3">
-                <div class="col-sm-12">
+                <div class="col-sm-4">
                     <label>Earnest Money (In Ether)</label>
                     <input type="number" class="form-control" name="earnest_money" value="{{ boe.earnest_money }}">
+                </div>
+                <div class="col-sm-4">
+                    <label>Ended</label>
+                    <input type="text" class="form-control" name="earnest_money" value="{{ boe.ended }}">
+                </div>
+                <div class="col-sm-4">
+                    <label>Result</label>
+                    <input type="text" class="form-control" name="earnest_money" value="{{ boe.result }}">
                 </div>
             </div>
 
@@ -141,6 +149,27 @@
             <input name="action" value="load" hidden>
             <button class="btn btn-success btn-lg btn-block mb-3" type="submit" {% if boe and boe.has_contract %} disabled {% endif %}>Load Contract !</button>
         </form>
+
+        {% if boe %}
+        <form class="form-submit" method="POST" action="">
+            <h2>Host Api</h2><hr>
+            <div class="row mb-3">
+                <div class="col-sm-12">
+                    <label>Result</label>
+                    <input type="number" class="form-control" name="result" value="{{ boe.result or '' }}" required="">
+                </div>
+            </div>
+            <input name="action" value="confirm" hidden>
+            <button class="btn btn-warning btn-lg btn-block mb-3" type="submit">Confirm</button>
+        </form>
+
+        <hr class="mb-4">
+        <form class="form-submit" method="POST" action="">
+            <input name="action" value="clear" hidden>
+            <button class="btn btn-warning btn-lg btn-block mb-3" type="submit">Clear</button>
+        </form>
+
+        {% endif %}
 
     </div>
 </div>

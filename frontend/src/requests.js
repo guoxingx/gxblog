@@ -36,13 +36,45 @@ export function getHtml (url) {
 }
 
 export function getBetOnEtherList () {
-  return get(HOST + '/api/betonethers')
+  return get(HOST + '/api/eth/betonethers')
 }
 
 export function getBetOnEther (id) {
-  return get(HOST + '/api/betonethers/' + id)
+  return get(HOST + '/api/eth/betonethers/' + id)
 }
 
-export function getBalance(address) {
-  return get(HOST + '/api/accounts/' + address)
+export function registerAccount (password) {
+  return post(HOST + '/api/eth/accounts', {password: password})
+}
+
+export function getBalance (address) {
+  return get(HOST + '/api/eth/accounts/' + address + '/balance')
+}
+
+export function betOnEtherBet (id, beton, amount, address, password) {
+  return post(
+    HOST + '/api/eth/betonethers/' + id + '/bets',
+    {
+      beton: beton,
+      amount: amount,
+      address: address,
+      password: password
+    })
+}
+
+export function getBetOnEtherBetList (id, address) {
+  return get(HOST + '/api/eth/betonethers/' + id + '/bets?address=' + address)
+}
+
+export function betOnEtherWithdraw (id, address, password) {
+  return post(
+    HOST + '/api/eth/betonethers/' + id + '/withdraw',
+    {
+      address: address,
+      password: password
+    })
+}
+
+export function requestTestEther (address) {
+  return get('http://faucet.ropsten.be:3001/donate/' + address)
 }

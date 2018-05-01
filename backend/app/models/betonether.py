@@ -1,10 +1,14 @@
 
 import time
 
+from flask import current_app
+
 from .base import BaseModel
 from .. import db
-from ..src.eth import ManagerConnector, IdentityConnector, Connector
-from ..utils import get_static_dir
+# from ..src.eth import ManagerConnector, IdentityConnector, Connector
+from web3.auto import w3
+from web3.exceptions import BadFunctionCallOutput
+from ..utils import get_static_dir, to_checked_address
 
 
 AbiFile = 'betonether_abi.json'
@@ -34,6 +38,7 @@ class BetOnEther(BaseModel):
     draw_bonus = db.Column(db.Integer())
     lose_bonus = db.Column(db.Integer())
     ended = db.Column(db.Boolean())
+    result = db.Column(db.Integer())
 
     @property
     def bytecode_text(self):
@@ -61,19 +66,19 @@ class BetOnEther(BaseModel):
         if self.has_contract and contract is None:
             contract = self.load_contract(sync_data=False)
 
-        conn = ManagerConnector()
-        # self.contract_address = conn.call(contract.address)
-        self.host = conn.call(contract.functions.host())
-        self.pool = conn.call(contract.functions.pool())
-        self.earnest_money = int(conn.call(contract.functions.earnestMoney()) / (10 ** 15))
-        self.balance = int(conn.call(contract.functions.balance()) / (10 ** 15))
-        self.win_odds = conn.call(contract.functions.oddss(0))
-        self.draw_odds = conn.call(contract.functions.oddss(1))
-        self.lose_odds = conn.call(contract.functions.oddss(2))
-        self.win_bonus = int(conn.call(contract.functions.bonuss(0)) / (10 ** 15))
-        self.draw_bonus = int(conn.call(contract.functions.bonuss(1)) / (10 ** 15))
-        self.lose_bonus = int(conn.call(contract.functions.bonuss(2)) / (10 ** 15))
-        self.ended = conn.call(contract.functions.ended())
+        # self.host = contract.functions.host().call()
+        # self.pool = int(contract.functions.pool().call() / (10 ** 15))
+        # self.earnest_money = int(contract.functions.earnestMoney().call() / (10 ** 15))
+        # self.balance = int(contract.functions.balance().call() / (10 ** 15))
+        # self.win_odds = contract.functions.oddss(0).call()
+        # self.draw_odds = contract.functions.oddss(1).call()
+        # self.lose_odds = contract.functions.oddss(2).call()
+        # self.win_bonus = int(contract.functions.bonuss(0).call() / (10 ** 15))
+        # self.draw_bonus = int(contract.functions.bonuss(1).call() / (10 ** 15))
+        # self.lose_bonus = int(contract.functions.bonuss(2).call() / (10 ** 15))
+        self.ended = contract.functions.ended().call()
+        if self.ended:
+            self.result = contract.functions.game().call()[3]
 
         db.session.add(self)
         db.session.commit()
@@ -91,27 +96,24 @@ class BetOnEther(BaseModel):
         db.session.add(self)
         db.session.commit()
 
-        remarks = '{}-{}'.format(self.league, self.round)
+        # remarks = '{}-{}'.format(self.league, self.round)
         oddss = [int(win_odds), int(draw_odds), int(lose_odds)]
         bet_time = int(self.opening_time.timestamp() - time.time() - 3600)
         if bet_time < 3600:
             return 1
         game_time = 3600 * 2
 
-        conn = ManagerConnector()
-        contract = conn.deploy_contract(self.abi_text, self.bytecode_text,
-            self.home, self.visiting,
-            self.league, oddss,
-            bet_time, game_time,
-            str(self.id),
-            value=earnest_money * (10 ** 18))
-        print(contract)
-        return
-
         try:
-            conn = ManagerConnector()
-            contract = conn.deploy_contract(self.abi_text, self.bytecode_text, **self.contract_init_params)
-            print(contract)
+            w3.personal.unlockAccount(w3.eth.coinbase, current_app.config.get('ETH_COINBASE_PASSWORD'))
+            contract = w3.eth.contract(abi=self.abi_text, bytecode=self.bytecode_text)
+            tx_hash = contract.constructor(
+                self.home, self.visiting_image,
+                self.league, oddss,
+                bet_time, game_time,
+                str(self.id)).transact({'value': earnest_money * (10 ** 18)})
+            tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
+            contract_address = tx_receipt['contractAddress']
+            return contract_address
 
             self.sync_data(contract)
         except Exception as e:
@@ -121,12 +123,11 @@ class BetOnEther(BaseModel):
             db.session.commit()
 
     def load_contract(self, address=None, sync_data=True):
-        print('load', self.has_contract, address)
         if self.has_contract:
             pass
 
-        coon = ManagerConnector()
-        contract = coon.load_contract(address or self.contract_address, self.abi_text)
+        address = to_checked_address(address or self.contract_address)
+        contract = w3.eth.contract(address=address, abi=self.abi_text)
 
         if contract:
             self.has_contract = True
@@ -138,33 +139,50 @@ class BetOnEther(BaseModel):
             return contract
 
     def bet(self, beton, amount, account, password):
-        conn = IdentityConnector(account, password)
-        res = conn.transact(self.contract.functions.bet(beton), value=conn.to_wei(amount, 'finney'))
-        return res
+        account = to_checked_address(account)
+        params = {'from': account, 'value': w3.toWei(amount, 'finney')}
+        w3.personal.unlockAccount(account, password)
+        try:
+            gas = self.contract.functions.bet(beton).estimateGas(params)
+        except ValueError:
+            return 1, None
+        res = self.contract.functions.bet(beton).transact({
+            'from': to_checked_address(account),
+            'value': w3.toWei(amount, 'finney'),
+            'gas': gas
+        })
+        res = w3.toHex(res)
+        return 0, res
 
     def alterOdds(self, win, draw, lose):
         pass
 
     def confirm(self, result):
-        conn = ManagerConnector()
-        res = conn.transact(self.contract.functions.bet(result))
-        return res
+        w3.personal.unlockAccount(w3.eth.coinbase, current_app.config.get('ETH_COINBASE_PASSWORD'))
+        gas = self.contract.functions.confirm(result).estimateGas({'from': w3.eth.coinbase})
+        res = self.contract.functions.confirm(result).transact({'from': w3.eth.coinbase, 'gas': gas})
+        return w3.toHex(res)
 
     def withdraw(self, account, password):
-        conn = IdentityConnector(account, password)
-        res = conn.transact(self.contract.functions.withdraw())
-        return res
+        account = to_checked_address(account)
+        w3.personal.unlockAccount(account, password)
+        res = self.contract.functions.withdraw().transact({'from': account})
+        return w3.toHex(res)
 
     def clear(self):
-        conn = ManagerConnector()
-        res = conn.transact(self.contract.functions.clear())
-        return res
+        w3.personal.unlockAccount(w3.eth.coinbase, current_app.config.get('ETH_COINBASE_PASSWORD'))
+        res = self.contract.functions.clear().transact({'from': w3.eth.coinbase})
+        return w3.toHex(res)
 
     def query_bets(self, account):
-        coon = Connector()
         res = []
-        bet = coon.call(self.contract.functions.bets(account, 0))
-        res.append(bet)
+        account = to_checked_address(account)
+        for i in range(10):
+            try:
+                bet = self.contract.functions.bets(account, i).call()
+                res.append(bet)
+            except BadFunctionCallOutput:
+                break
         return res
 
     def to_json(self):
@@ -189,5 +207,6 @@ class BetOnEther(BaseModel):
             win_bonus=self.win_bonus,
             draw_bonus=self.draw_odds,
             lose_bonus=self.lose_bonus,
-            ended=self.ended
+            ended=self.ended,
+            result=self.result
         )

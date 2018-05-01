@@ -3,6 +3,8 @@ import os
 
 from werkzeug.datastructures import MultiDict
 from flask import request
+from web3.auto import w3
+from eth_utils import to_checksum_address
 
 from .db import db
 
@@ -53,3 +55,29 @@ def get_form(form_class, _dict):
 
 def form_by_json_request(form_class):
     return get_form(form_class, request.json or request.form)
+
+
+def to_checked_address(address):
+    """
+    非混合大小写的addres会报错，不知道是否是bug
+    将address转换成混合大小写
+    """
+    res = to_checksum_address(address)
+    if res.lower() == address or res.upper() == address:
+        return res
+    return address
+
+
+def auto_mine():
+    """
+    """
+    eth = w3.eth
+    miner = w3.miner
+    if len(eth.getBlock('pending').transactions) > 0:
+        if not eth.mining:
+            print('start mine')
+            miner.start(1)
+    else:
+        if eth.mining:
+            print('stop mine')
+            miner.stop()
