@@ -17,7 +17,8 @@ export function post (url, data) {
   })
 }
 
-var HOST = 'http://localhost'
+// var HOST = 'http://localhost'
+var HOST = 'http://116.62.200.91'
 
 if (process.env.NODE_ENV === 'development') {
   HOST = 'http://localhost:5000'
