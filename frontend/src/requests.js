@@ -17,8 +17,8 @@ export function post (url, data) {
   })
 }
 
-// var HOST = 'http://localhost'
-var HOST = 'http://116.62.200.91'
+// var HOST = 'http://116.62.200.91'
+var HOST = ''
 
 if (process.env.NODE_ENV === 'development') {
   HOST = 'http://localhost:5000'
@@ -77,5 +77,10 @@ export function betOnEtherWithdraw (id, address, password) {
 }
 
 export function requestTestEther (address) {
-  return get('http://faucet.ropsten.be:3001/donate/' + address)
+  return post(
+    HOST + '/api/eth/testether',
+    {
+      address: address
+    }
+  )
 }

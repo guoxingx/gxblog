@@ -55,7 +55,7 @@
 
 <script>
 import { setAccount, logoutAccount } from '../account.js'
-import { getBalance, registerAccount } from '../requests.js'
+import { getBalance, registerAccount, requestTestEther } from '../requests.js'
 
 export default {
   props: ['balance', 'account'],
@@ -95,11 +95,21 @@ export default {
       })
     },
     requestEth () {
-      this.$message({
-        message: '注意：等交易写入区块才能到账，约几十秒。自行刷新页面:)。前往www.bilibili.com查看进展。',
-        showClose: true,
-        type: 'warning',
-        duration: 30000
+      requestTestEther(this.account).then(res => {
+        if (res.data.code !== 0) {
+          this.$message({
+            message: res.data.error,
+            showClose: true,
+            type: 'warning'
+          })
+        } else {
+          this.$message({
+            message: '注意：等交易写入区块才能到账，约几十秒。自行刷新页面:)',
+            showClose: true,
+            type: 'warning',
+            duration: 30000
+          })
+        }
       })
     }
   }

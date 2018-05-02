@@ -17,8 +17,11 @@ def fix_eth_rpc_url(eth_rpc_url):
     os.system('ping -c 1 {} >/tmp/abc  2>&1'.format(url))
     with open('/tmp/abc') as f:
         content = f.read()
-        url = re.findall('\(.*\)', content)[0][1:-1]
-        return 'http://{}:{}'.format(url, port)
+        try:
+            url = re.findall('\(.*\)', content)[0][1:-1]
+            return 'http://{}:{}'.format(url, port)
+        except IndexError:
+            return eth_rpc_url
 
 
 class Config(object):
