@@ -2609,3 +2609,31 @@
 12:15:14.361399 table@remove removed @836
 12:15:14.362664 table@remove removed @837
 12:15:14.363921 table@remove removed @838
+13:02:06.947630 db@close closing
+13:02:06.950286 db@close done T·2.652691ms
+=============== May 2, 2018 (UTC) ===============
+13:02:17.598740 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+13:02:17.604111 version@stat F·[0 6] S·11MiB[0B 11MiB] Sc·[0.00 0.11]
+13:02:17.604621 db@open opening
+13:02:17.606011 journal@recovery F·1
+13:02:17.607823 journal@recovery recovering @840
+13:02:17.849834 memdb@flush created L0@848 N·38502 S·902KiB "n:\x00..ing,v3634450":"n:\xff..ing,v3633647"
+13:02:17.854549 version@stat F·[1 6] S·12MiB[902KiB 11MiB] Sc·[0.25 0.11]
+13:02:17.863201 db@janitor F·9 G·0
+13:02:17.863550 db@open done T·258.616494ms
+13:02:17.939385 table@compaction L0·1 -> L1·6 S·12MiB Q·3647654
+13:02:18.106205 table@build created L1@851 N·28429 S·2MiB "n:\x00..ing,v1949633":"n:-..ing,v1958334"
+13:02:18.273424 table@build created L1@852 N·28462 S·2MiB "n:-..ing,v2386803":"n:Z..ing,v737114"
+13:02:18.465389 table@build created L1@853 N·28452 S·2MiB "n:Z..ing,v1816003":"n:\x86..ing,v708630"
+13:02:18.631068 table@build created L1@854 N·28412 S·2MiB "n:\x86..ail,v3540433":"n:\xb3..ing,v3091271"
+13:02:18.795509 table@build created L1@855 N·28488 S·2MiB "n:\xb3..ing,v2599469":"n:\xe0..ing,v2159169"
+13:02:18.906024 table@build created L1@856 N·19442 S·1MiB "n:\xe0..ing,v1797781":"version,v1"
+13:02:18.906665 version@stat F·[0 6] S·11MiB[0B 11MiB] Sc·[0.00 0.12]
+13:02:18.908876 table@compaction committed F-1 S-834KiB Ke·0 D·37510 T·968.155091ms
+13:02:18.910126 table@remove removed @848
+13:02:18.911373 table@remove removed @842
+13:02:18.912455 table@remove removed @843
+13:02:18.913601 table@remove removed @844
+13:02:18.914834 table@remove removed @845
+13:02:18.916277 table@remove removed @846
+13:02:18.917645 table@remove removed @847
