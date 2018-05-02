@@ -218,7 +218,6 @@ class ManagerConnector(IdentityConnector):
 
 
 if __name__ == '__main__':
-    pass
     # coon = Connector()
     # print(coon._w3.eth.accounts)
     # print(coon._w3.eth.filter)
@@ -226,5 +225,9 @@ if __name__ == '__main__':
     # account = coon.create_account('3')
     # print('account {} created.'.format(account))
 
-    # res = draw(account)
-    # print('draw from faucet ', res)
+    account = '0x63ac94052fc5dcdc5fbbc4026764a5b33f89bf7f'
+    while True:
+        import time
+        res = draw(account)
+        print('draw from faucet ', res)
+        time.sleep(5)

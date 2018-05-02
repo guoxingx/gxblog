@@ -6,11 +6,12 @@ from flask import current_app
 from .base import BaseModel
 from .. import db
 # from ..src.eth import ManagerConnector, IdentityConnector, Connector
-from web3.auto import w3
+# from web3.auto import w3
 from web3.exceptions import BadFunctionCallOutput
-from ..utils import get_static_dir, to_checked_address
+from ..utils import get_static_dir, to_checked_address, get_w3
 
 
+w3 = get_w3()
 AbiFile = 'betonether_abi.json'
 ByteCodeFile = 'betonether_bytecode.json'
 
@@ -104,7 +105,7 @@ class BetOnEther(BaseModel):
         game_time = 3600 * 2
 
         try:
-            w3.personal.unlockAccount(w3.eth.coinbase, current_app.config.get('ETH_COINBASE_PASSWORD'))
+            w3.personal.unlockAccount(w3.eth.accounts[0], current_app.config.get('ETH_COINBASE_PASSWORD'))
             contract = w3.eth.contract(abi=self.abi_text, bytecode=self.bytecode_text)
             tx_hash = contract.constructor(
                 self.home, self.visiting_image,
@@ -158,9 +159,9 @@ class BetOnEther(BaseModel):
         pass
 
     def confirm(self, result):
-        w3.personal.unlockAccount(w3.eth.coinbase, current_app.config.get('ETH_COINBASE_PASSWORD'))
-        gas = self.contract.functions.confirm(result).estimateGas({'from': w3.eth.coinbase})
-        res = self.contract.functions.confirm(result).transact({'from': w3.eth.coinbase, 'gas': gas})
+        w3.personal.unlockAccount(w3.eth.accounts[0], current_app.config.get('ETH_COINBASE_PASSWORD'))
+        gas = self.contract.functions.confirm(result).estimateGas({'from': w3.eth.accounts[0]})
+        res = self.contract.functions.confirm(result).transact({'from': w3.eth.accounts[0], 'gas': gas})
         return w3.toHex(res)
 
     def withdraw(self, account, password):
@@ -170,8 +171,8 @@ class BetOnEther(BaseModel):
         return w3.toHex(res)
 
     def clear(self):
-        w3.personal.unlockAccount(w3.eth.coinbase, current_app.config.get('ETH_COINBASE_PASSWORD'))
-        res = self.contract.functions.clear().transact({'from': w3.eth.coinbase})
+        w3.personal.unlockAccount(w3.eth.accounts[0], current_app.config.get('ETH_COINBASE_PASSWORD'))
+        res = self.contract.functions.clear().transact({'from': w3.eth.accounts[0]})
         return w3.toHex(res)
 
     def query_bets(self, account):

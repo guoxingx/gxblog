@@ -3,10 +3,30 @@ import os
 
 from werkzeug.datastructures import MultiDict
 from flask import request
-from web3.auto import w3
+# from web3.auto import w3
+from web3 import Web3, HTTPProvider
 from eth_utils import to_checksum_address
 
 from .db import db
+
+
+CONFIG = {}
+
+
+def get_w3():
+    return Web3(HTTPProvider(config_value('ETH_RPC_URL')))
+
+
+def populate_config(config):
+    global CONFIG
+    for key in dir(config):
+        if key.isupper():
+            CONFIG[key] = getattr(config, key)
+
+
+def config_value(key):
+    global CONFIG
+    return CONFIG.get(key)
 
 
 def get_static_dir(target=None):
@@ -71,6 +91,7 @@ def to_checked_address(address):
 def auto_mine():
     """
     """
+    w3 = get_w3()
     eth = w3.eth
     miner = w3.miner
     if len(eth.getBlock('pending').transactions) > 0:

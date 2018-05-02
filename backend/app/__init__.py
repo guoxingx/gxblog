@@ -8,6 +8,7 @@ from flask_login import LoginManager
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from .db import db
+from .utils import populate_config
 # from .resources import api
 from config import config
 
@@ -18,6 +19,7 @@ login_manager = LoginManager()
 def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
+    populate_config(config[config_name])
 
     db.init_app(app)
     # api.init_app(app)

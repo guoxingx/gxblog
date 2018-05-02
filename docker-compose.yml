@@ -6,9 +6,8 @@ services:
         build: ./backend
         expose:
             - "8000"
+        env_file: .env
         environment:
-            - APP_CONFIG=${APP_CONFIG}
-            - ETH_MODE=${ETH_MODE}
             - TZ=PRC
         volumes:
             - ./gxblog_app:/gxblog_app
@@ -42,7 +41,7 @@ services:
             - ./eth_test:/root/test
             - ./run_eth.sh:/root/run_eth.sh
         # command: bash /root/run_eth.sh
-        command: "--datadir /root/dev --testnet --syncmode light --rpc --rpcaddr 0.0.0.0 --rpcapi eth,net,web3,personal"
+        command: "--datadir /root/dev --testnet --syncmode light --rpc --rpcaddr 0.0.0.0 --rpccorsdomain * --rpcapi eth,net,web3,personal"
         # command: "--datadir /root/test/data --rpc --rpcaddr 0.0.0.0 --rpcapi eth,net,web3,personal,miner"
 
     mysql:
