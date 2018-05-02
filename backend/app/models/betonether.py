@@ -1,5 +1,6 @@
 
 import time
+import json
 
 from flask import current_app
 
@@ -30,6 +31,8 @@ class BetOnEther(BaseModel):
 
     has_contract = db.Column(db.Boolean())
     contract_address = db.Column(db.String(63))
+    tx_hash = db.Column(db.String(127))
+    contract_status = db.Column(db.Integer())
 
     host = db.Column(db.String(63))
     pool = db.Column(db.Integer())
@@ -44,7 +47,12 @@ class BetOnEther(BaseModel):
     @property
     def bytecode_text(self):
         with open(get_static_dir('contracts/{}'.format(ByteCodeFile))) as f:
-            return f.read().encode()
+            res = f.read()
+            res = json.loads(res)
+            res = res.get('object')
+            return res
+            print(res)
+            print(type(res))
 
     @property
     def abi_text(self):
@@ -69,7 +77,7 @@ class BetOnEther(BaseModel):
 
         # self.host = contract.functions.host().call()
         # self.pool = int(contract.functions.pool().call() / (10 ** 15))
-        self.earnest_money = int(contract.functions.earnestMoney().call() / (10 ** 15))
+        self.earnest_money = int(contract.functions.earnestMoney().call() / (10 ** 18))
         # self.balance = int(contract.functions.balance().call() / (10 ** 15))
         self.win_odds = contract.functions.oddss(0).call()
         self.draw_odds = contract.functions.oddss(1).call()
@@ -90,38 +98,42 @@ class BetOnEther(BaseModel):
         """
         not yet
         """
-        if self.has_contract:
-            return 0
+        if self.has_contract or self.contract_status:
+            return 1
 
-        self.has_contract = True
-        db.session.add(self)
-        db.session.commit()
-
-        # remarks = '{}-{}'.format(self.league, self.round)
+        remarks = '{}-{}'.format(self.league, self.round)
         oddss = [int(win_odds), int(draw_odds), int(lose_odds)]
         bet_time = int(self.opening_time.timestamp() - time.time() - 3600)
         if bet_time < 3600:
-            return 1
+            return 2
         game_time = 3600 * 2
 
-        try:
-            w3.personal.unlockAccount(w3.eth.accounts[0], current_app.config.get('ETH_COINBASE_PASSWORD'))
-            contract = w3.eth.contract(abi=self.abi_text, bytecode=self.bytecode_text)
-            tx_hash = contract.constructor(
-                self.home, self.visiting_image,
-                self.league, oddss,
-                bet_time, game_time,
-                str(self.id)).transact({'value': earnest_money * (10 ** 18)})
-            tx_receipt = w3.eth.getTransactionReceipt(tx_hash)
-            contract_address = tx_receipt['contractAddress']
-            return contract_address
+        host = w3.eth.accounts[0]
+        w3.personal.unlockAccount(host, current_app.config.get('ETH_COINBASE_PASSWORD'))
+        contract = w3.eth.contract(abi=self.abi_text, bytecode=self.bytecode_text)
+        tx_hash = contract.constructor(
+            w3.toHex(text=self.home), w3.toHex(text=self.visiting),
+            w3.toHex(text=remarks), oddss,
+            bet_time, game_time,
+            w3.toHex(text=str(self.id))).transact({'from': host, 'value': w3.toWei(earnest_money, 'ether')})
+        self.tx_hash = w3.toHex(tx_hash)
+        self.contract_status = 1
+        db.session.add(self)
+        db.session.commit()
+        return 0
 
-            self.sync_data(contract)
-        except Exception as e:
-            print(e)
-            self.has_contract = False
+    def load_contract_by_tx_hash(self):
+        if self.contract_status != 1:
+            return 1
+        tx_receipt = w3.eth.getTransactionReceipt(self.tx_hash)
+        if tx_receipt:
+            self.contract_address = tx_receipt['contractAddress']
+            self.contract_status = 2
+            self.has_contract = True
             db.session.add(self)
             db.session.commit()
+            return 0
+        return 2
 
     def load_contract(self, address=None, sync_data=True):
         if self.has_contract:

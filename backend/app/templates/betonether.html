@@ -80,58 +80,75 @@
         </form>
 
         {% if boe %}
-        <form class="form-submit" method="POST" action="">
-            <h2>Contract Info</h2>
-            <hr>
+            {% if boe.contract_status == 1 %}
+            <form class="form-submit" method="POST" action="">
+                <h2>Contract Info</h2>
+                <hr>
 
-            <div class="row mb-3">
-                <div class="col-sm-12">
-                    <label>Address</label>
-                    <input type="text" class="form-control" name="address" value="{{ boe.contract_address or 'Not Deployed' }}" disabled>
+                <div class="row mb-3">
+                    <div class="col-sm-12">
+                        <label>Tx Hash</label>
+                        <input type="text" class="form-control" name="address" value="{{ boe.tx_hash }}" disabled>
+                    </div>
                 </div>
-            </div>
 
-            <div class="row mb-3">
-                <div class="col-sm-4">
-                    <label>Earnest Money (In Ether)</label>
-                    <input type="number" class="form-control" name="earnest_money" value="{{ boe.earnest_money }}">
-                </div>
-                <div class="col-sm-4">
-                    <label>Ended</label>
-                    <input type="text" class="form-control" name="earnest_money" value="{{ boe.ended }}">
-                </div>
-                <div class="col-sm-4">
-                    <label>Result</label>
-                    <input type="text" class="form-control" name="earnest_money" value="{{ boe.result }}">
-                </div>
-            </div>
-
-            <h5>Odds (x 1000)</h5>
-            <div class="row mb-3">
-                <div class="col-sm-4">
-                    <label>Win</label>
-                    <input type="number" class="form-control" name="win_odds" value="{{ boe.win_odds }}">
-                </div>
-                <div class="col-sm-4">
-                    <label>Draw</label>
-                    <input type="number" class="form-control" name="draw_odds" value="{{ boe.draw_odds }}">
-                </div>
-                <div class="col-sm-4">
-                    <label>Lose</label>
-                    <input type="number" class="form-control" name="lose_odds" value="{{ boe.lose_odds }}">
-                </div>
-            </div>
-
-            <hr class="mb-4">
-            {% if boe.has_contract %}
-                <input name="action" value="alter" hidden>
-                <button class="btn btn-primary btn-lg btn-block mb-3" type="submit">Alter Contract !</button>
+                <hr class="mb-4">
+                <input name="action" value="txhash" hidden>
+                <button class="btn btn-primary btn-lg btn-block mb-3" type="submit">Load From Tx Hash</button>
+            </form>
             {% else %}
-                <input name="action" value="deploy" hidden>
-                <button class="btn btn-primary btn-lg btn-block mb-3" type="submit">Deploy Contract !</button>
-            {% endif %}
-        </form>
+            <form class="form-submit" method="POST" action="">
+                <h2>Contract Info</h2>
+                <hr>
 
+                <div class="row mb-3">
+                    <div class="col-sm-12">
+                        <label>Address</label>
+                        <input type="text" class="form-control" name="address" value="{{ boe.contract_address or 'Not Deployed' }}" disabled>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label>Earnest Money (In Ether)</label>
+                        <input type="number" class="form-control" name="earnest_money" value="{{ boe.earnest_money }}">
+                    </div>
+                    <div class="col-sm-4">
+                        <label>Ended</label>
+                        <input type="text" class="form-control" name="earnest_money" value="{{ boe.ended }}" disabled>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>Result</label>
+                        <input type="text" class="form-control" name="earnest_money" value="{{ boe.result }}" disabled>
+                    </div>
+                </div>
+
+                <h5>Odds (x 1000)</h5>
+                <div class="row mb-3">
+                    <div class="col-sm-4">
+                        <label>Win</label>
+                        <input type="number" class="form-control" name="win_odds" value="{{ boe.win_odds }}">
+                    </div>
+                    <div class="col-sm-4">
+                        <label>Draw</label>
+                        <input type="number" class="form-control" name="draw_odds" value="{{ boe.draw_odds }}">
+                    </div>
+                    <div class="col-sm-4">
+                        <label>Lose</label>
+                        <input type="number" class="form-control" name="lose_odds" value="{{ boe.lose_odds }}">
+                    </div>
+                </div>
+
+                <hr class="mb-4">
+                {% if boe.has_contract %}
+                    <input name="action" value="alter" hidden>
+                    <button class="btn btn-primary btn-lg btn-block mb-3" type="submit">Alter Contract !</button>
+                {% else %}
+                    <input name="action" value="deploy" hidden>
+                    <button class="btn btn-primary btn-lg btn-block mb-3" type="submit">Deploy Contract !</button>
+                {% endif %}
+            </form>
+            {% endif %}
         {% endif %}
 
         <form class="form-submit" method="POST" action="">

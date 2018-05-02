@@ -41,7 +41,7 @@ services:
             - ./run_eth.sh:/root/run_eth.sh
         # command: bash /root/run_eth.sh
         # command: "--datadir /root/dev --testnet --syncmode light --rpc --rpcaddr 0.0.0.0 --rpccorsdomain * --rpcapi eth,net,web3,personal"
-        command: "--datadir /root/test/edata --rpc --rpcaddr 0.0.0.0 --rpcapi eth,net,web3,personal,miner"
+        command: "--datadir /root/test/data --rpc --rpcaddr 0.0.0.0 --rpcapi eth,net,web3,personal,miner"
 
     mysql:
         image: mysql:5.7

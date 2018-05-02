@@ -77,6 +77,9 @@ def betonether():
             if boe and form.validate_on_submit():
                 boe.deploy(**form.data)
 
+        if action == 'txhash':
+            boe.load_contract_by_tx_hash()
+
         elif action == 'load':
             address = request.form.get('address')
             if address:
