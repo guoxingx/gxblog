@@ -2,12 +2,12 @@
 
 import functools
 
-from flask import request, redirect, url_for, render_template
+from flask import request, redirect, url_for, render_template, current_app
 from flask_login import login_user, login_required, current_user
 
 from . import main
 from .forms import LoginForm, BetOnEtherCreateForm, BetOnEtherDeployForm
-from ..models import User, BetOnEther
+from ..models import User, BetOnEther, Role
 from .. import login_manager, db
 
 
@@ -105,3 +105,21 @@ def betonether():
     if boe and boe.has_contract:
         boe.sync_data()
     return render('betonether.html', boe=boe, boe_list=boe_list)
+
+
+@main.before_app_first_request
+def before_first_request():
+    create_admin()
+
+
+def create_admin():
+    username = current_app.config.get('ADMIN_USERNAME', 'admin')
+    password = current_app.config.get('ADMIN_PASSWORD', 'admin123')
+
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        user = User(username=username, password=password)
+        db.session.add(user)
+
+    Role.add_role(user, 'admin')
+    db.session.commit()
