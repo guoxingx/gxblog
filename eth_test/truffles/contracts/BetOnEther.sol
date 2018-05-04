@@ -58,7 +58,6 @@ contract BetOnEther {
         _; 
     }
 
-
     /// 创建
     constructor (bytes32 _home, bytes32 _visiting,
                  bytes32 _remarks, uint[3] _oddss,
@@ -130,6 +129,8 @@ contract BetOnEther {
     /// 提款
     // function withdraw () public onlyAfter(gameEnd) {
     function withdraw () public {
+        require (ended);
+
         uint length = bets[msg.sender].length;
         uint amount = 0;
         
@@ -151,6 +152,8 @@ contract BetOnEther {
     /// 庄家提款
     // function clear () public onlyHost onlyAfter(gameEnd) {
     function clear () public onlyHost {
+        require (ended);
+        
         // 提取剩余利润
         uint _balance = balance;
         if (_balance > 0) {

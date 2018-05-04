@@ -2,7 +2,7 @@
 from flask_wtf import FlaskForm
 
 from wtforms import StringField, PasswordField, FloatField, IntegerField
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, Optional
 
 
 class LoginForm(FlaskForm):
@@ -24,6 +24,8 @@ class BetOnEtherCreateForm(FlaskForm):
 
 
 class BetOnEtherDeployForm(FlaskForm):
+    host = StringField('host', validators=[Optional()])
+    password = PasswordField('password', validators=[Optional()])
     earnest_money = IntegerField('earnest_money', validators=[DataRequired()])
     win_odds = FloatField('win_odds', validators=[DataRequired()])
     draw_odds = FloatField('draw_odds', validators=[DataRequired()])

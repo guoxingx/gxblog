@@ -68,7 +68,10 @@ def index():
 @roles_required('admin')
 def betonether():
     _id = request.args.get('id')
+    qa = request.args.get('q')
     boe = BetOnEther.query.get(_id) if _id else None
+    if boe and boe.deleted:
+        boe = None
 
     if request.method == 'POST':
         action = request.form.get('action')
@@ -97,17 +100,29 @@ def betonether():
                 db.session.add(boe)
                 db.session.commit()
 
+        elif action == 'delete':
+            boe.deleted = True
+            db.session.add(boe)
+            db.session.commit()
+
         elif action == 'confirm':
             result = request.form.get('result')
-            boe.confirm(int(result))
+            password = request.form.get('password')
+            boe.confirm(int(result), password)
 
         elif action == 'clear':
-            boe.clear()
+            password = request.form.get('password')
+            boe.clear(password)
 
-    boe_list = BetOnEther.query.all()
+    boe_list = BetOnEther.query.filter_by(deleted=False).order_by(BetOnEther.created_at.desc()).all()
     if boe and boe.has_contract:
         boe.sync_data()
-    return render('betonether.html', boe=boe, boe_list=boe_list)
+
+    bet_list = None
+    if boe and boe.contract_status == 2 and qa:
+        bet_list = boe.query_bets(qa)
+
+    return render('betonether.html', boe=boe, boe_list=boe_list, bet_list=bet_list)
 
 
 @main.before_app_first_request

@@ -35,15 +35,15 @@ def create_app(config_name):
     main_blueprint.url_prefix = '/admin'
     app.register_blueprint(main_blueprint)
 
-    # eth_mode = os.environ.get('ETH_MODE') or 'test'
-    # if eth_mode == 'test':
-    #     from .utils import auto_mine
+    eth_mode = os.environ.get('ETH_MODE') or 'test'
+    if eth_mode == 'test':
+        from .utils import auto_mine
 
-    #     def sensor():
-    #         auto_mine()
+        def sensor():
+            auto_mine()
 
-    #     sched = BackgroundScheduler(daemon=True)
-    #     sched.add_job(sensor, 'interval', seconds=5)
-    #     sched.start()
+        sched = BackgroundScheduler(daemon=True)
+        sched.add_job(sensor, 'interval', seconds=5)
+        sched.start()
 
     return app

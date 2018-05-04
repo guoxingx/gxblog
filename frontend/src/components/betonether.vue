@@ -172,6 +172,10 @@ export default {
   },
   methods: {
     bet (beton) {
+      if (this.boe.ended) {
+        this.$message({ message: '该轮游戏已结束', type: 'warning' })
+        return
+      }
       var address = getAccount()
       if (!this.boe.id) { this.$message({ message: 'id未找到', type: 'warning' }) }
       if (!this.amount) { this.$message({ message: '金额未填写', type: 'warning' }) }
@@ -183,6 +187,10 @@ export default {
           if (res.status === 200) {
             if (res.data.code === 0) {
               this.$message({ message: '下注成功！请等待数据写入区块...', type: 'success' })
+            } else if (res.data.code === 30001) {
+              this.$message({ message: '操作过于频繁，15秒后重试', type: 'warning' })
+            } else if (res.data.code === 1) {
+              this.$message({ message: '密码错误', type: 'warning' })
             } else {
               this.$message({ message: '下注过大，庄家保证金不足！', type: 'warning' })
             }
@@ -266,10 +274,10 @@ export default {
 .board {
   text-align: center;
 }
-.result {
+/*.result {
   background: #67C23A;
-}
+}*/
 .result span {
-  color: white;
+  color: #67C23A;
 }
 </style>

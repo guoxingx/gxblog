@@ -12,3 +12,4 @@ gevent
 requests
 web3
 apscheduler
+redis

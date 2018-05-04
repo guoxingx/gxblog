@@ -71,8 +71,12 @@ export default {
       var bid = this.boe.id
       if (this.boe.ended) {
         betOnEtherWithdraw(bid, this.account, this.password).then(res => {
-          this.$message({ message: '提现成功！请等待数据写入区块...', type: 'success' })
-          this.visible0 = false
+          if (res.data.code === 30001) {
+            this.$message({ message: '操作过于频繁，15秒后重试', type: 'warning' })
+          } else {
+            this.$message({ message: '提现成功！请等待数据写入区块...', type: 'success' })
+            this.visible0 = false
+          }
         })
       } else {
         this.$message({ message: '请等待比赛结束 / 或刷新数据', type: 'warning' })

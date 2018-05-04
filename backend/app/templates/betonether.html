@@ -10,6 +10,12 @@
 
 <div class="main">
 
+{% if boe.contract_status == 3 %}
+<div class="alert alert-danger" role="alert">
+    Contract Not Found!
+</div>
+{% endif %}
+
 <div class="row">
     <div class="col-md-4 order-md-2 mb-4">
         <h4 class="d-flex justify-content-between align-items-center mb-3">
@@ -26,7 +32,15 @@
                         <small class="text-muted">{{ boe.opening_time.strftime('%Y-%m-%d %H:%M:%S') if boe.opening_time else '' }}</small>
                     </div>
                     <span class="text-muted">
-                        {% if boe.has_contract %} Contract {% endif %}
+                        {% if boe.has_contract %}
+                            {% if boe.contract_status == 1 %}
+                                <label class="text-warning">Pending</label>
+                            {% elif boe.contract_status == 2 %}
+                                <label class="text-success">Contracted</label>
+                            {% elif boe.contract_status == 3 %}
+                                <label class="text-danger">NotFound</label>
+                            {% endif %}
+                        {% endif %}
                     </span>
                 </li>
             {% endfor %}
@@ -79,6 +93,11 @@
             <button class="btn btn-info btn-lg btn-block mb-3" type="submit">Insert Data</button>
         </form>
 
+        <form class="form-submit" method="POST" action="">
+            <input name="action" value="delete" hidden>
+            <button class="btn btn-danger btn-lg btn-block mb-3" type="submit">Delete</button>
+        </form>
+
         {% if boe %}
             {% if boe.contract_status == 1 %}
             <form class="form-submit" method="POST" action="">
@@ -120,6 +139,17 @@
                     <div class="col-sm-4">
                         <label>Result</label>
                         <input type="text" class="form-control" name="earnest_money" value="{{ boe.result }}" disabled>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-8">
+                        <label>Host</label>
+                        <input type="text" class="form-control" name="host" value="{{ boe.host or '' }}">
+                    </div>
+                    <div class="col-sm-4">
+                        <label>Password</label>
+                        <input type="password" class="form-control" name="password">
                     </div>
                 </div>
 
@@ -171,21 +201,68 @@
         <form class="form-submit" method="POST" action="">
             <h2>Host Api</h2><hr>
             <div class="row mb-3">
-                <div class="col-sm-12">
+                <div class="col-sm-8">
                     <label>Result</label>
                     <input type="number" class="form-control" name="result" value="{{ boe.result or '' }}" required="">
                 </div>
+                <div class="col-sm-4">
+                    <label>Password</label>
+                    <input type="password" class="form-control" name="password">
+                </div>
             </div>
+
             <input name="action" value="confirm" hidden>
             <button class="btn btn-warning btn-lg btn-block mb-3" type="submit">Confirm</button>
         </form>
 
         <hr class="mb-4">
         <form class="form-submit" method="POST" action="">
+            <div class="row mb-3">
+                <div class="col-sm-4">
+                    <label>Password</label>
+                    <input type="password" class="form-control" name="password">
+                </div>
+            </div>
+
             <input name="action" value="clear" hidden>
             <button class="btn btn-warning btn-lg btn-block mb-3" type="submit">Clear</button>
         </form>
 
+        {% endif %}
+
+        {% if boe and boe.contract_status == 2 and bet_list %}
+        <h2>Query Player</h2><hr>
+        <hr class="mb-4">
+        <div class="row mb-3">
+
+        <div class="table-responsive">
+            <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>result</th>
+                        <th>amount</th>
+                        <th>odds</th>
+                        <th>profit</th>
+                        <th>withdrawed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bet in bet_list %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ bet[0] }}</td>
+                        <td>{{ bet[1] }}</td>
+                        <td>{{ bet[2] }}</td>
+                        <td>{{ bet[3] }}</td>
+                        <td>{{ bet[4] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        </div>
         {% endif %}
 
     </div>

@@ -1,3 +1,4 @@
+#!coding: utf-8
 
 import time
 import json
@@ -18,6 +19,13 @@ ByteCodeFile = 'betonether_bytecode.json'
 
 
 class BetOnEther(BaseModel):
+    """
+    @param: contract_status: <int>
+        0: 未绑定合约
+        1: 合约写入区块中 tx_hash load_contract_by_tx_hash()
+        2: 合约正常
+        3: 合约未找到
+    """
     home = db.Column(db.String(63))
     home_image = db.Column(db.String(255))
     visiting = db.Column(db.String(63))
@@ -44,6 +52,8 @@ class BetOnEther(BaseModel):
     ended = db.Column(db.Boolean())
     result = db.Column(db.Integer())
 
+    deleted = db.Column(db.Boolean(), default=False)
+
     @property
     def bytecode_text(self):
         with open(get_static_dir('contracts/{}'.format(ByteCodeFile))) as f:
@@ -51,8 +61,6 @@ class BetOnEther(BaseModel):
             res = json.loads(res)
             res = res.get('object')
             return res
-            print(res)
-            print(type(res))
 
     @property
     def abi_text(self):
@@ -68,33 +76,40 @@ class BetOnEther(BaseModel):
         try:
             return getattr(self, '_contract')
         except AttributeError:
-            self.load_contract()
-            return self._contract
+            contract = self.load_contract()
+            if contract:
+                self.has_contract = True
+                self.contract_address = contract.address
+                db.session.add(self)
+                db.session.commit()
+                self._contract = contract
+                return self._contract
 
-    def sync_data(self, contract=None):
-        if self.has_contract and contract is None:
-            contract = self.load_contract(sync_data=False)
+    def sync_data(self):
+        try:
+            contract = self.contract
 
-        # self.host = contract.functions.host().call()
-        # self.pool = int(contract.functions.pool().call() / (10 ** 15))
-        self.earnest_money = int(contract.functions.earnestMoney().call() / (10 ** 18))
-        # self.balance = int(contract.functions.balance().call() / (10 ** 15))
-        self.win_odds = contract.functions.oddss(0).call()
-        self.draw_odds = contract.functions.oddss(1).call()
-        self.lose_odds = contract.functions.oddss(2).call()
-        # self.win_bonus = int(contract.functions.bonuss(0).call() / (10 ** 15))
-        # self.draw_bonus = int(contract.functions.bonuss(1).call() / (10 ** 15))
-        # self.lose_bonus = int(contract.functions.bonuss(2).call() / (10 ** 15))
-        self.ended = contract.functions.ended().call()
-        if self.ended:
-            self.result = contract.functions.game().call()[3]
+            self.host = contract.functions.host().call()
+            # self.pool = int(contract.functions.pool().call() / (10 ** 15))
+            self.earnest_money = int(contract.functions.earnestMoney().call() / (10 ** 18))
+            # self.balance = int(contract.functions.balance().call() / (10 ** 15))
+            self.win_odds = contract.functions.oddss(0).call()
+            self.draw_odds = contract.functions.oddss(1).call()
+            self.lose_odds = contract.functions.oddss(2).call()
+            # self.win_bonus = int(contract.functions.bonuss(0).call() / (10 ** 15))
+            # self.draw_bonus = int(contract.functions.bonuss(1).call() / (10 ** 15))
+            # self.lose_bonus = int(contract.functions.bonuss(2).call() / (10 ** 15))
+            self.ended = contract.functions.ended().call()
+            if self.ended:
+                self.result = contract.functions.game().call()[3]
+            self.contract_status = 2
+        except BadFunctionCallOutput as e:
+            self.contract_status = 3
+        finally:
+            db.session.add(self)
+            db.session.commit()
 
-        db.session.add(self)
-        db.session.commit()
-
-        self._contract = contract
-
-    def deploy(self, earnest_money, win_odds, draw_odds, lose_odds):
+    def deploy(self, earnest_money, win_odds, draw_odds, lose_odds, host=None, password=None):
         """
         not yet
         """
@@ -108,8 +123,10 @@ class BetOnEther(BaseModel):
             return 2
         game_time = 3600 * 2
 
-        host = w3.eth.accounts[0]
-        w3.personal.unlockAccount(host, current_app.config.get('ETH_COINBASE_PASSWORD'))
+        host = host or w3.eth.accounts[0]
+        host = to_checked_address(host)
+        password = password or current_app.config.get('ETH_COINBASE_PASSWORD')
+        w3.personal.unlockAccount(host, password)
         contract = w3.eth.contract(abi=self.abi_text, bytecode=self.bytecode_text)
         tx_hash = contract.constructor(
             w3.toHex(text=self.home), w3.toHex(text=self.visiting),
@@ -142,23 +159,18 @@ class BetOnEther(BaseModel):
         address = to_checked_address(address or self.contract_address)
         contract = w3.eth.contract(address=address, abi=self.abi_text)
 
-        if contract:
-            self.has_contract = True
-            self.contract_address = contract.address
-            db.session.add(self)
-            db.session.commit()
-            if sync_data:
-                self.sync_data(contract)
-            return contract
+        return contract
 
     def bet(self, beton, amount, account, password):
         account = to_checked_address(account)
         params = {'from': account, 'value': w3.toWei(amount, 'finney')}
-        w3.personal.unlockAccount(account, password)
+        res = w3.personal.unlockAccount(account, password)
+        if not res:
+            return 1, None
         try:
             gas = self.contract.functions.bet(beton).estimateGas(params)
         except ValueError:
-            return 1, None
+            return 2, None
         res = self.contract.functions.bet(beton).transact({
             'from': to_checked_address(account),
             'value': w3.toWei(amount, 'finney'),
@@ -170,10 +182,11 @@ class BetOnEther(BaseModel):
     def alterOdds(self, win, draw, lose):
         pass
 
-    def confirm(self, result):
-        w3.personal.unlockAccount(w3.eth.accounts[0], current_app.config.get('ETH_COINBASE_PASSWORD'))
-        gas = self.contract.functions.confirm(result).estimateGas({'from': w3.eth.accounts[0]})
-        res = self.contract.functions.confirm(result).transact({'from': w3.eth.accounts[0], 'gas': gas})
+    def confirm(self, result, password=None):
+        password = password or current_app.config.get('ETH_COINBASE_PASSWORD')
+        w3.personal.unlockAccount(self.host, password)
+        gas = self.contract.functions.confirm(result).estimateGas({'from': self.host})
+        res = self.contract.functions.confirm(result).transact({'from': self.host, 'gas': gas})
         return w3.toHex(res)
 
     def withdraw(self, account, password):
@@ -182,9 +195,10 @@ class BetOnEther(BaseModel):
         res = self.contract.functions.withdraw().transact({'from': account})
         return w3.toHex(res)
 
-    def clear(self):
-        w3.personal.unlockAccount(w3.eth.accounts[0], current_app.config.get('ETH_COINBASE_PASSWORD'))
-        res = self.contract.functions.clear().transact({'from': w3.eth.accounts[0]})
+    def clear(self, password=None):
+        password = password or current_app.config.get('ETH_COINBASE_PASSWORD')
+        w3.personal.unlockAccount(self.host, password)
+        res = self.contract.functions.clear().transact({'from': self.host})
         return w3.toHex(res)
 
     def query_bets(self, account):
@@ -221,5 +235,6 @@ class BetOnEther(BaseModel):
             draw_bonus=self.draw_odds,
             lose_bonus=self.lose_bonus,
             ended=self.ended,
-            result=self.result
+            result=self.result,
+            contract_status=self.contract_status
         )

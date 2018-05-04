@@ -7,9 +7,9 @@ api_blueprint = Blueprint('api', __name__)
 api = Api(api_blueprint)
 
 
-# @api_blueprint.app_errorhandler(Exception)
-# def internal_server_error(e):
-#     return jsonify({'code': 500, 'message': 'internal server error'})
+@api_blueprint.app_errorhandler(Exception)
+def internal_server_error(e):
+    return jsonify({'code': 500, 'message': 'internal server error'})
 
 
 def register_api(resource, route, endpoint=None):

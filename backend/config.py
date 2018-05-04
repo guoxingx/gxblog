@@ -54,7 +54,7 @@ class DevelopmentConfig(Config):
     FLASK_DEBUG = 1
 
     SQLALCHEMY_DATABASE_URI = 'mysql://{}:{}@mysql/{}?charset=utf8mb4'.format(mysql_user, mysql_pass, mysql_db)
-    REDIS_URL = 'redis://@redis_conn/0'
+    REDIS_URL = 'redis://@redis/0'
     ETH_RPC_URL = fix_eth_rpc_url('http://ethnode:8545')
 
 
