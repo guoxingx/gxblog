@@ -36,7 +36,7 @@
       <el-row :gutter="12">
         <el-col :span="6" :offset="3">
           <h5>主胜</h5>
-          <el-card shadow="hover" :class="boe.result===0? 'result':''">
+          <el-card shadow="hover" v-bind:class="{ result: boe.result===0 }">
             <el-button type="text" v-popover:beton0>
               {{ boe.win_odds / 1000 }}
             </el-button>
@@ -44,7 +44,7 @@
         </el-col>
         <el-col :span="6" :offset="0">
           <h5>平局</h5>
-          <el-card shadow="hover" :class="boe.result===1? 'result':''">
+          <el-card shadow="hover" v-bind:class="{ result: boe.result===1 }">
             <el-button type="text" v-popover:beton1>
               {{ boe.draw_odds / 1000 }}
             </el-button>
@@ -52,7 +52,7 @@
         </el-col>
         <el-col :span="6" :offset="0">
           <h5>客胜</h5>
-          <el-card shadow="hover" :class="boe.result===2? 'result':''">
+          <el-card shadow="hover" v-bind:class="{ result: boe.result===2 }">
             <el-button type="text" v-popover:beton2>
               {{ boe.lose_odds / 1000 }}
             </el-button>
