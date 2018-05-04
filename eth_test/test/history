@@ -1,0 +1,11 @@
+eth.accounts
+eth.getBalance(eth.accounts[0])
+miner.start()
+eth.getBalance(eth.accounts[0])
+eth.getBlock('latest')
+eth.getBlock(0)
+eth.getBlock(1)
+eth.getBlock(2)
+eth.getBlock(3)
+eth.getBlock(4)
+eth.getBlock(5)

@@ -35,13 +35,13 @@ services:
             - ETH_MODE=${ETH_MODE}
             - TZ=PRC
         volumes:
-            - ./data/ethereum/pro:/root/pro
-            - ./data/ethereum/dev:/root/dev
-            - ./eth_test:/root/test
+            - ./data/ethereum/ropsten:/root/ropsten
+            - ./data/ethereum/private:/root/private
+            - ./genesis.json:/root/genesis.json
             - ./run_eth.sh:/root/run_eth.sh
         # command: bash /root/run_eth.sh
         # command: "--datadir /root/dev --testnet --syncmode light --rpc --rpcaddr 0.0.0.0 --rpccorsdomain * --rpcapi eth,net,web3,personal"
-        command: "--datadir /root/test/data --rpc --rpcaddr 0.0.0.0 --rpcapi eth,net,web3,personal,miner"
+        command: "--datadir /root/private/data --rpc --rpcaddr 0.0.0.0 --rpcapi eth,net,web3,personal,miner"
 
     mysql:
         image: mysql:5.7
