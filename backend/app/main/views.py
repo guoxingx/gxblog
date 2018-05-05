@@ -8,6 +8,7 @@ from flask_login import login_user, login_required, current_user
 from . import main
 from .forms import LoginForm, BetOnEtherCreateForm, BetOnEtherDeployForm
 from ..models import User, BetOnEther, Role
+from ..utils import get_node_status
 from .. import login_manager, db
 
 
@@ -114,15 +115,18 @@ def betonether():
             password = request.form.get('password')
             boe.clear(password)
 
+    node_status_dict = get_node_status()
+    node_status = node_status_dict.get('status')
+
     boe_list = BetOnEther.query.filter_by(deleted=False).order_by(BetOnEther.created_at.desc()).all()
-    if boe and boe.has_contract:
+    if not node_status and boe and boe.has_contract:
         boe.sync_data()
 
     bet_list = None
     if boe and boe.contract_status == 2 and qa:
         bet_list = boe.query_bets(qa)
 
-    return render('betonether.html', boe=boe, boe_list=boe_list, bet_list=bet_list)
+    return render('betonether.html', boe=boe, boe_list=boe_list, bet_list=bet_list, node_status_dict=node_status_dict)
 
 
 @main.before_app_first_request

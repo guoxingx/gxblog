@@ -10,6 +10,15 @@
 
 <div class="main">
 
+{% if node_status_dict.get('status') == 0 %}
+<div class="alert alert-success" role="alert">
+{% else %}
+<div class="alert alert-danger" role="alert">
+{% endif %}
+    {{ node_status_dict.get('message') }}.
+    peer count: {{ node_status_dict.get('peer_count') }}
+</div>
+
 {% if boe.contract_status == 3 %}
 <div class="alert alert-danger" role="alert">
     Contract Not Found!

@@ -2,7 +2,7 @@
 import os
 
 from werkzeug.datastructures import MultiDict
-from flask import request
+from flask import request, current_app
 # from web3.auto import w3
 from web3 import Web3, HTTPProvider
 from eth_utils import to_checksum_address
@@ -15,6 +15,37 @@ CONFIG = {}
 
 def get_w3():
     return Web3(HTTPProvider(config_value('ETH_RPC_URL')))
+
+
+def get_node_status():
+    if current_app.config.get('ETH_MODE') == 'test':
+        return {
+            'status': 0,
+            'peer_count': 0,
+            'message': 'private chain'
+        }
+    status = 0
+    message = 'working'
+    w3 = get_w3()
+    peer_count = w3.net.peerCount
+    try:
+        w3.eth.getBalance(w3.eth.accounts[0])
+    except ValueError as e:
+        if e.args[0].get('code') == -32000:
+            if peer_count > 0:
+                status = 1
+                message = 'syncing'
+            else:
+                status = 2
+                message = 'warting for peers'
+        else:
+            raise e
+
+    return {
+        'status': status,
+        'peer_count': peer_count,
+        'message': message
+    }
 
 
 def populate_config(config):

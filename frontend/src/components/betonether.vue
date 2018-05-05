@@ -24,7 +24,10 @@
       </div>
     </el-col>
 
-    <el-col :xs="24" :sm="18" :md="16" :lg="14" :xl="12" class="board">
+    <el-col v-if="!boe.id" :xs="24" :sm="18" :md="16" :lg="14" :xl="12" class="board">
+      <h2>未选择比赛</h2>
+    </el-col>
+    <el-col v-if="boe.id" :xs="24" :sm="18" :md="16" :lg="14" :xl="12" class="board">
       <h2>{{ boe.league }} round {{ boe.round }}</h2>
       <h4 :style="boe.ended ? 'color: #E6A23C;':'color: #409EFF;'">
         {{ boe.ended ? '已结束' : '进行中' }}
@@ -51,7 +54,7 @@
           <h5>主胜</h5>
           <el-card shadow="hover" v-bind:class="{ result: boe.result===0 }">
             <el-button type="text" v-popover:beton0>
-              {{ boe.win_odds / 1000 }}
+              {{ boe.win_odds / 1000 || 0 }}
             </el-button>
           </el-card>
         </el-col>
@@ -59,7 +62,7 @@
           <h5>平局</h5>
           <el-card shadow="hover" v-bind:class="{ result: boe.result===1 }">
             <el-button type="text" v-popover:beton1>
-              {{ boe.draw_odds / 1000 }}
+              {{ boe.draw_odds / 1000 || 0 }}
             </el-button>
           </el-card>
         </el-col>
@@ -67,7 +70,7 @@
           <h5>客胜</h5>
           <el-card shadow="hover" v-bind:class="{ result: boe.result===2 }">
             <el-button type="text" v-popover:beton2>
-              {{ boe.lose_odds / 1000 }}
+              {{ boe.lose_odds / 1000 || 0 }}
             </el-button>
           </el-card>
         </el-col>
@@ -266,6 +269,9 @@ export default {
       getBetOnEtherList().then(res => {
         for (var i in res.data) {
           if (res.data[i].id === Number(bid)) { this.boe = res.data[i] }
+        }
+        if (this.boe === null) {
+          this.boe = res.data[0]
         }
         this.boes_count = res.data.length
         this.boe_list = res.data
