@@ -15,16 +15,14 @@ class Articles(BaseResource):
 class Article(BaseResource):
 
     def get(self, _id):
-        return None
-        if not _id == 17261:
-            return None
         fname = 'python-stdout-buffer.html'
+        fname = 'betonether.html'
         path = url_for('static', filename='blogs/{}'.format(fname))
 
         return {
             'image': 'http://ac-hcebow9l.clouddn.com/a72529f44be3cdb0d620.jpeg',
             'title': 'Python std buffer problem.',
-            'tags': ['Python', '日志'],
+            'tags': ['ethereum', '智能合约', 'web3'],
             'summary': 'Some log issue while using "print()"',
             'html': path,
             'type': 'markdown',
