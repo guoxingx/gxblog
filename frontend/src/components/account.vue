@@ -58,7 +58,7 @@ import { setAccount, logoutAccount } from '../account.js'
 import { getBalance, registerAccount, requestTestEther } from '../requests.js'
 
 export default {
-  props: ['balance', 'account'],
+  props: ['balance', 'account', 'nodeStatus'],
   data () {
     return {
       // balance: 0,
@@ -95,22 +95,26 @@ export default {
       })
     },
     requestEth () {
-      requestTestEther(this.account).then(res => {
-        if (res.data.code !== 0) {
-          this.$message({
-            message: res.data.error,
-            showClose: true,
-            type: 'warning'
-          })
-        } else {
-          this.$message({
-            message: '注意：等交易写入区块才能到账，约几十秒。自行刷新页面:)',
-            showClose: true,
-            type: 'warning',
-            duration: 30000
-          })
-        }
-      })
+      if (this.nodeStatus === 0) {
+        requestTestEther(this.account).then(res => {
+          if (res.data.code !== 0) {
+            this.$message({
+              message: res.data.error,
+              showClose: true,
+              type: 'warning'
+            })
+          } else {
+            this.$message({
+              message: '注意：等交易写入区块才能到账，约几十秒。自行刷新页面:)',
+              showClose: true,
+              type: 'warning',
+              duration: 30000
+            })
+          }
+        })
+      } else {
+        this.$message({ message: '节点暂不可用，请等待 / 点击刷新', type: 'warning' })
+      }
     }
   }
   // created () {

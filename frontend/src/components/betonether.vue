@@ -1,5 +1,18 @@
 <template>
   <el-row>
+    <el-col :xs="24" :sm="24" :md="24" :lg="5" :xl="8" class="right" style="float: right">
+      <div class="status">
+        <el-button :type="nodeStatus===0 ? 'success' : 'warning'" @click="refreshNodeStatus(true)" round>
+          当前状态: {{ nodeStatusString }}
+        </el-button>
+      </div>
+      <div class="status">
+        <el-button :type="nodeStatus===0 ? 'success' : 'warning'" @click="refreshNodeStatus(true)" round>
+          连接节点数: {{ peerCount }}
+        </el-button>
+      </div>
+    </el-col>
+
     <el-col :xs="24" :sm="6" :md="6" :lg="5" :xl="4">
       <div class="left">
         <h1>BetOnEther</h1>
@@ -16,7 +29,7 @@
       <h4 :style="boe.ended ? 'color: #E6A23C;':'color: #409EFF;'">
         {{ boe.ended ? '已结束' : '进行中' }}
       </h4>
-      <el-button type="primary" @click="refresh" round>点我刷新</el-button>
+      <el-button type="primary" @click="refresh(true)" round>点我刷新</el-button>
       <el-row>
         <el-col :span="11">
           <div class="team">
@@ -107,11 +120,12 @@
         <p>因为作者很懒 ...请好好利用"刷新"按钮。<strong>暂时的</strong></p>
       </el-col>
     </el-col>
+
   </el-row>
 </template>
 
 <script>
-import { getBetOnEtherList, betOnEtherBet, getBetOnEtherBetList, getBalance } from '../requests'
+import { getBetOnEtherList, betOnEtherBet, getBetOnEtherBetList, getBalance, getNodeStatus } from '../requests'
 import { getAccount } from '../account'
 
 export default {
@@ -121,11 +135,6 @@ export default {
     'account': () => import('./account'),
     'boe-bets': () => import('./boe_bets')
   },
-  // watch: {
-  //   '$route' (to, from) {
-  //     alert(to, from)
-  //   }
-  // },
   beforeRouteUpdate (to, from, next) {
     if (to.params.id !== this.boe.id) {
       for (var i in this.boe_list) {
@@ -147,53 +156,24 @@ export default {
       visible1: false,
       visible2: false,
       balance: 0,
-      account: getAccount()
+      account: getAccount(),
+      nodeStatus: -1,
+      nodeStatusString: 'unknown',
+      peerCount: 0
     }
   },
   created () {
-    var bid = this.$route.params.id
-    getBetOnEtherList().then(res => {
-      for (var i in res.data) {
-        if (res.data[i].id === Number(bid)) { this.boe = res.data[i] }
-      }
-      this.boes_count = res.data.length
-      this.boe_list = res.data
-      this.getBetList()
-    })
-
-    this.account = getAccount()
-    if (this.account) {
-      getBalance(this.account).then(res => {
-        if (res.status === 200) {
-          this.balance = Math.round(res.data / 1000000000000000)
-        }
-      })
-    }
+    this.refresh()
   },
   methods: {
     bet (beton) {
-      if (this.boe.ended) {
-        this.$message({ message: '该轮游戏已结束', type: 'warning' })
-        return
-      }
-      var address = getAccount()
-      if (!this.boe.id) { this.$message({ message: 'id未找到', type: 'warning' }) }
-      if (!this.amount) { this.$message({ message: '金额未填写', type: 'warning' }) }
-      if (!address) { this.$message({ message: '账号未找到', type: 'warning' }) }
-      if (!this.password) { this.$message({ message: '密码未填写', type: 'warning' }) }
-
-      if (!this.boe.ended && this.boe.id && beton != null && this.amount && address && this.password) {
-        betOnEtherBet(this.boe.id, beton, this.amount, address, this.password).then(res => {
+      if (this.nodeStatus === 0) {
+        if (this.betCheck()) {
+          return
+        }
+        betOnEtherBet(this.boe.id, beton, this.amount, getAccount(), this.password).then(res => {
           if (res.status === 200) {
-            if (res.data.code === 0) {
-              this.$message({ message: '下注成功！请等待数据写入区块...', type: 'success' })
-            } else if (res.data.code === 30001) {
-              this.$message({ message: '操作过于频繁，15秒后重试', type: 'warning' })
-            } else if (res.data.code === 1) {
-              this.$message({ message: '密码错误', type: 'warning' })
-            } else {
-              this.$message({ message: '下注过大，庄家保证金不足！', type: 'warning' })
-            }
+            this.betResponse(res.data.code)
           } else {
             this.$message({ message: '下注失败:(', type: 'warning' })
           }
@@ -201,6 +181,45 @@ export default {
           if (beton === 1) { this.visible1 = false }
           if (beton === 2) { this.visible2 = false }
         })
+      } else {
+        this.$message({ message: '节点暂不可用，请等待 / 点击刷新', type: 'warning' })
+      }
+    },
+
+    betCheck () {
+      if (this.boe.ended) {
+        this.$message({ message: '该轮游戏已结束', type: 'warning' })
+        return 1
+      }
+      var address = getAccount()
+      if (!this.boe.id) {
+        this.$message({ message: 'id未找到', type: 'warning' })
+        return 1
+      }
+      if (!this.amount) {
+        this.$message({ message: '金额未填写', type: 'warning' })
+        return 1
+      }
+      if (!address) {
+        this.$message({ message: '账号未找到', type: 'warning' })
+        return 1
+      }
+      if (!this.password) {
+        this.$message({ message: '密码未填写', type: 'warning' })
+        return 1
+      }
+      return 0
+    },
+
+    betResponse (code) {
+      if (code === 0) {
+        this.$message({ message: '下注成功！请等待数据写入区块...', type: 'success' })
+      } else if (code === 30001) {
+        this.$message({ message: '操作过于频繁，15秒后重试', type: 'warning' })
+      } else if (code === 1) {
+        this.$message({ message: '密码错误', type: 'warning' })
+      } else {
+        this.$message({ message: '下注过大，庄家保证金不足！', type: 'warning' })
       }
     },
 
@@ -226,8 +245,24 @@ export default {
       }
     },
 
-    refresh () {
-      var bid = this.boe.id
+    refreshNodeStatus (isRefresh = false) {
+      getNodeStatus().then(res => {
+        if (res.status === 200) {
+          var data = res.data.data
+          this.nodeStatus = data.status
+          this.nodeStatusString = data.message
+          this.peerCount = data.peer_count
+          if (isRefresh) {
+            this.$message({ message: '状态刷新成功', type: 'success' })
+          }
+        }
+      })
+    },
+
+    refresh (isRefresh = false) {
+      var bid = this.$route.params.id
+      this.refreshNodeStatus()
+
       getBetOnEtherList().then(res => {
         for (var i in res.data) {
           if (res.data[i].id === Number(bid)) { this.boe = res.data[i] }
@@ -236,7 +271,9 @@ export default {
         this.boe_list = res.data
         this.getBetList()
 
-        this.$message({ message: '刷新成功', type: 'success' })
+        if (isRefresh) {
+          this.$message({ message: '刷新成功', type: 'success' })
+        }
       })
 
       this.account = getAccount()
@@ -248,7 +285,6 @@ export default {
         })
       }
     }
-
   }
 }
 </script>
@@ -279,5 +315,9 @@ export default {
 }*/
 .result span {
   color: #67C23A;
+}
+.status {
+  text-align: center;
+  padding: 5px 0;
 }
 </style>

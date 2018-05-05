@@ -23,6 +23,7 @@ register_api(Articles, 'articles')
 register_api(Article, 'articles/<int:_id>')
 
 from .ethereum import (
+    EthStatus,
     Accounts,
     Balance,
     TestEtherCoin,
@@ -30,6 +31,7 @@ from .ethereum import (
     BetOnEtherBetList,
     BetOnEtherWithdraw
 )
+register_api(EthStatus, 'eth/status')
 register_api(Accounts, 'eth/accounts')
 register_api(TestEtherCoin, 'eth/testether')
 register_api(Balance, 'eth/accounts/<address>/balance')

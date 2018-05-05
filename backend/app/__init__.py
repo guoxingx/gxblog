@@ -5,6 +5,7 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from flask_login import LoginManager
+# from flask_socketio import SocketIO, emit
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from .db import db
@@ -14,6 +15,7 @@ from config import config
 
 
 login_manager = LoginManager()
+# socketio = SocketIO()
 
 
 def create_app(config_name):
@@ -22,7 +24,7 @@ def create_app(config_name):
     populate_config(config[config_name])
 
     db.init_app(app)
-    # api.init_app(app)
+    # socketio.init_app(app)
     login_manager.init_app(app)
 
     CORS(app, max_age=86400)
@@ -35,8 +37,8 @@ def create_app(config_name):
     main_blueprint.url_prefix = '/admin'
     app.register_blueprint(main_blueprint)
 
-    eth_mode = os.environ.get('ETH_MODE') or 'test'
-    if eth_mode == 'test':
+    # eth_mode = os.environ.get('ETH_MODE') or 'test'
+    if app.config.get('ETH_MODE') == 'test':
         from .utils import auto_mine
 
         def sensor():

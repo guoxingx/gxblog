@@ -41,8 +41,9 @@ services:
             - ./genesis.json:/root/genesis.json
             - ./run_eth.sh:/root/run_eth.sh
         # command: bash /root/run_eth.sh
-        # command: "--datadir /root/dev --testnet --syncmode light --rpc --rpcaddr 0.0.0.0 --rpccorsdomain * --rpcapi eth,net,web3,personal"
-        command: "--datadir /root/private/data --rpc --rpcaddr 0.0.0.0 --rpcapi eth,net,web3,personal,miner"
+        # command: "--datadir /root/ropsten --testnet --syncmode light --rpc --rpcaddr 0.0.0.0 --rpccorsdomain * --rpcapi eth,net,web3,personal"
+        command: "--datadir /root/ropsten --testnet --syncmode light --rpc --rpcaddr 0.0.0.0 --rpcapi eth,net,web3,personal"
+        # command: "--datadir /root/private/data --networkid 262412 --rpc --rpcaddr 0.0.0.0 --rpcapi eth,net,web3,personal,miner"
 
     mysql:
         image: mysql:5.7

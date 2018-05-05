@@ -37,6 +37,7 @@ class Config(object):
 
     ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME')
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+    ETH_MODE = os.environ.get('ETH_MODE') or 'test'
     ETH_RPC_URL = 'http://localhost:8545'
     ETH_COINBASE_PASSWORD = os.environ.get('ETH_COINBASE_PASSWORD')
 

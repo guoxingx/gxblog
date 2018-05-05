@@ -84,3 +84,7 @@ export function requestTestEther (address) {
     }
   )
 }
+
+export function getNodeStatus () {
+  return get(HOST + '/api/eth/status')
+}

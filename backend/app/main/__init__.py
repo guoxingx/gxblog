@@ -1,5 +1,7 @@
 
-from flask import Blueprint, jsonify
+import logging
+
+from flask import Blueprint, jsonify, current_app
 main = Blueprint('main', __name__)
 
 
