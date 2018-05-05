@@ -438,7 +438,7 @@ contract BetOnEther {
 
 <h3 id="toc_4">创建合约</h3>
 
-<p>首先要明确，智能合约是建立在以太坊交易上的，每一次与智能合约的交互都是一笔带data的交易。</p>
+<p><strong>首先要明确，智能合约是建立在以太坊交易上的，每一次与智能合约的交互都是一笔带data的交易。</strong></p>
 
 <p>创建合约需要较多的参数，以及必须输入一定数量的以太币，作为庄家的保证金。solidity提供了<code>payable</code>熟悉，用来确保某次函数调用（一笔交易）必须有转账金额。</p>
 
@@ -466,7 +466,7 @@ contract BetOnEther {
 
 <p>这是合约的构造函数，一些地方会用跟合约同名的函数来表示，也是可以的，但是remix会打出warning提示使用<code>constructor</code>。</p>
 
-<p>msg.sender是交易的发起人，如同前面说的，每次函数调用都是一笔交易，msg就是保存了这笔交易信息的对象。常用的还有msg.value，表示交易金额。</p>
+<p><strong>msg.sender是交易的发起人，如同前面说的，每次函数调用都是一笔交易，msg就是保存了这笔交易信息的对象。常用的还有msg.value，表示交易金额。</strong></p>
 
 <p>这里的balance并不是一个很准确的信息，在合约执行中并没有太大的参考意义，我只在后面庄家提现的时候会用到它。</p>
 
@@ -624,6 +624,11 @@ contract BetOnEther {
 
 <p>ropsten是以太坊的测试链，可以免费获取测试币，用来测试自己的智能合约。</p>
 
+<p><strong>免费获取测试币的方式：</strong><br/>
+1. <a href="http://faucet.ropsten.be:3001/">http://faucet.ropsten.be:3001/</a><br/>
+2. chrome插件<a href="https://metamask.io/">metaMask</a><br/>
+你可以写一个脚本去要饭，不过他们都有greedylist。</p>
+
 <p>连接到ropsten：<br/>
 <code>geth --datadir anywhereyoulike --testnet --syncmode light</code></p>
 
@@ -636,7 +641,7 @@ contract BetOnEther {
 <p><strong>如果不用light模式，区块同步需要几个小时以及几十G的数据。</strong><br/>
 所以忍着吧，毕竟测试链不要钱。我的做法是在告诉用户当前节点是否可用。</p>
 
-<p><strong>当然，下面我们主要介绍私有链的做法</strong></p>
+<p><strong>这里我们主要介绍私有链的做法</strong></p>
 
 <h3 id="toc_10">web3.js</h3>
 
@@ -651,7 +656,7 @@ contract BetOnEther {
 <li><p>不出意外remix将会打印出我们的错误并给出一些warning，都有很好的修改指引，有的话将其一一修改。</p></li>
 <li><p>没有错误的话，点击编译按钮下面一行的Details，将会出现一个很长的弹出页，这有就是我们需要的部署合约的abi和bytecode。</p></li>
 <li><p>找到WEB3DEPLOY，点击拷贝按钮，然后打开文本编辑器，黏贴。</p></li>
-<li><p>因为我们合约的特殊性，构建函数是payable的，因此这种手动的方式，我们需要在构建时加点上交易金额的信息。var betonether = betonetherContract.new(...)就是合约的创建函数，做如下修改：</p></li>
+<li><p>因为我们合约的特殊性，构建函数是<code>payable</code>的，因此这种手动的方式，我们需要在构建时加点上交易金额的信息。var betonether = betonetherContract.new(...)就是合约的创建函数，做如下修改：</p></li>
 </ol>
 
 <pre><code>var betonether = betonetherContract.new(
@@ -673,7 +678,7 @@ contract BetOnEther {
 }）
 </code></pre>
 
-<p>当然像_home，_visiting这些变量，需要你在geth console中自己设定，可以从某些菠菜网站获取赛事信息和利率。</p>
+<p><strong>当然像_home，_visiting这些变量，需要你在geth console中自己设定</strong>，可以从某些菠菜网站获取赛事信息和利率。</p>
 
 <pre><code>var betonetherContract = web3.eth.contract(...)
 var betonether = betonetherContract.new(修改后的)
@@ -687,11 +692,188 @@ var betonether = betonetherContract.new(修改后的)
 
 <p>当然不可能一直用手动的方式部署合约，我们需要建立一个完整的应用，来一键部署合约，并与之交互。因为我的后台用的是python，所以我将用web3.py作为python和geth的交互。</p>
 
-<p>注意，并非指web3.js是手动而py是自动，只是因为我刚好用python作为后台，方便搭建python应用。</p>
+<p>并非指web3.js是手动而py是自动，只是因为我刚好用python作为后台，方便搭建python应用。</p>
 
-<p>因为python部署智能合约也有比较多的内容，而且对看本文的人来说也不是完全有用，之后我会更新相应blog。这里不再详细说明。</p>
+<p>具体见下文python后端</p>
 
-<h2 id="toc_12">应用架构</h2>
+<h2 id="toc_12">python 后端</h2>
+
+<p>实现我们这个智能合约的后端，需要实现的也很简单，无非就是用web3.py对接合约接口，提供一些可视化的界面操作。</p>
+
+<p>这部分的完整代码同样可以在我的<a href="">github</a>上找到。</p>
+
+<h3 id="toc_13">model</h3>
+
+<p>我用sqlalchemy定义了一个betonether数据类，基于mysql。</p>
+
+<blockquote>
+<p>dapp并不意味着完全用区块链作为数据库，像一些图片链接、更改频繁、又不需要用到区块链特性的无关公信力的数据，完全可以存储到自己的数据库中。</p>
+</blockquote>
+
+<p>这里的类主要有3个设计要点：</p>
+
+<ul>
+<li>智能合约数据相对应的数据</li>
+<li>不需要存储在区块链上的数据</li>
+<li>记录智能合约当前状态</li>
+</ul>
+
+<p>下面是不完整的实现代码</p>
+
+<pre><code>class BetOnEther(BaseModel):
+    &quot;&quot;&quot;
+    @param: contract_status: &lt;int&gt;
+        0: 未绑定合约
+        1: 合约写入区块中 tx_hash load_contract_by_tx_hash()
+        2: 合约正常
+        3: 合约未找到
+    &quot;&quot;&quot;
+    home = db.Column(db.String(63))
+    home_image = db.Column(db.String(255))
+    visiting = db.Column(db.String(63))
+    visiting_image = db.Column(db.String(255))
+    opening_time = db.Column(db.TIMESTAMP(timezone=True))
+    league = db.Column(db.String(63))
+    round = db.Column(db.String(63))
+
+    has_contract = db.Column(db.Boolean())
+    contract_address = db.Column(db.String(63))
+    tx_hash = db.Column(db.String(127))
+    contract_status = db.Column(db.Integer())
+
+    host = db.Column(db.String(63))
+    pool = db.Column(db.Integer())
+    earnest_money = db.Column(db.Integer())
+    ended = db.Column(db.Boolean())
+    result = db.Column(db.Integer())
+
+    deleted = db.Column(db.Boolean(), default=False)
+</code></pre>
+
+<h3 id="toc_14">部署合约</h3>
+
+<p>和js console一样，部署智能合约需要2个东西：abi和codebyte，都由solidity编译器编译.sol文件而来。</p>
+
+<p>但是还有一个问题我暂时没有解决：</p>
+
+<p><strong>我没有成功的在docker container上安装solidity解析器。</strong></p>
+
+<p>我尝试了一个小时，然后放弃了转而选择了直接保存abi和codebyte文件，内容来自remix编译。毕竟短时间内我还是会选择使用remix，之后有空再来填上这点。</p>
+
+<p>直接上代码：</p>
+
+<pre><code>    @property
+    def bytecode_text(self):
+        with open(get_static_dir(&#39;contracts/{}&#39;.format(ByteCodeFile))) as f:
+            res = f.read()
+            res = json.loads(res)
+            res = res.get(&#39;object&#39;)
+            return res
+
+    @property
+    def abi_text(self):
+        with open(get_static_dir(&#39;contracts/{}&#39;.format(AbiFile))) as f:
+            return f.read()
+            
+    def deploy(self, earnest_money, win_odds, draw_odds, lose_odds):
+        &quot;&quot;&quot;
+        部署合约
+        返回txhash
+        &quot;&quot;&quot;
+        if self.has_contract or self.contract_status:
+            return 1
+
+        remarks = &#39;{}-{}&#39;.format(self.league, self.round)
+        oddss = [int(win_odds), int(draw_odds), int(lose_odds)]
+        bet_time = int(self.opening_time.timestamp() - time.time() - 3600)
+        if bet_time &lt; 3600:
+            return 2
+        game_time = 3600 * 2
+
+        host = to_checked_address(w3.eth.accounts[0])
+        password = password or current_app.config.get(&#39;ETH_COINBASE_PASSWORD&#39;)
+        w3.personal.unlockAccount(host, password)
+        contract = w3.eth.contract(abi=self.abi_text, bytecode=self.bytecode_text)
+        tx_hash = contract.constructor(
+            w3.toHex(text=self.home), w3.toHex(text=self.visiting),
+            w3.toHex(text=remarks), oddss,
+            bet_time, game_time,
+            w3.toHex(text=str(self.id))).transact({&#39;from&#39;: host, &#39;value&#39;: w3.toWei(earnest_money, &#39;ether&#39;)})
+            
+        # 记录txhash并将合约状态设置为待写入。
+        self.tx_hash = w3.toHex(tx_hash)
+        self.contract_status = 1
+        db.session.add(self)
+        db.session.commit()
+        return 0
+
+    def load_contract_by_tx_hash(self):
+        &quot;&quot;&quot;
+        用txhash来查询合约是否已被写入区块。
+        &quot;&quot;&quot;
+        if self.contract_status != 1:
+            return 1
+        tx_receipt = w3.eth.getTransactionReceipt(self.tx_hash)
+        if tx_receipt:
+            self.contract_address = tx_receipt[&#39;contractAddress&#39;]
+            self.contract_status = 2
+            self.has_contract = True
+            db.session.add(self)
+            db.session.commit()
+            return 0
+        return 2
+
+    def load_contract(self, address=None, sync_data=True):
+        &quot;&quot;&quot;
+        从合约地址加载合约
+        &quot;&quot;&quot;
+        if self.has_contract:
+            pass
+
+        address = to_checked_address(address or self.contract_address)
+        contract = w3.eth.contract(address=address, abi=self.abi_text)
+
+        return contract
+</code></pre>
+
+<h3 id="toc_15">接口实现</h3>
+
+<p>此处的合约主要有以下情况：</p>
+
+<pre><code># 变量
+self.host = contract.functions.host().call()
+
+# 变量 数组
+self.win_odds = contract.functions.oddss(0).call()
+
+# 函数
+res = contract.functions.bet(beton).transact({
+  &#39;from&#39;: to_checked_address(account),
+  &#39;value&#39;: w3.toWei(amount, &#39;finney&#39;),
+  &#39;gas&#39;: gas
+})
+
+# 获取用户下注列表
+# 就是合约中定义的mapping
+def query_bets(self, account):
+   res = []
+   account = to_checked_address(account)
+   while True:
+       try:
+           bet = self.contract.functions.bets(account, i).call()
+           res.append(bet)
+       except BadFunctionCallOutput:
+           break
+   return res
+</code></pre>
+
+<p><code>call()</code>和<code>transact()</code>由合约functions对象调用，分别对应solidity中定义的变量和函数。</p>
+
+<p><code>transact()</code>接受一个交易对象，就是一个<code>dict</code>，用来定义<code>from</code>, <code>value</code>, <code>to</code>, <code>gas</code>等一笔交易相关的参数。</p>
+
+<p><strong>之后就用你喜欢的方式搭建前端和后端吧！</strong></p>
+
+<h2 id="toc_16">应用架构</h2>
 
 <p>因为我的目的是将应用搭建在自己的blog上，因此沿用了blog的架构，python flask作为后端，并将nginx，mysql等服务全部用docker启动。</p>
 
@@ -706,6 +888,8 @@ var betonether = betonetherContract.new(修改后的)
 </ul>
 
 <p>有兴趣的可以看我另一篇<a href="">本博客的搭建</a></p>
+
+<h2 id="toc_17">其他</h2>
 
 </div></body>
 
