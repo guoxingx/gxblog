@@ -4,28 +4,42 @@ services:
 
     backend:
         build: ./backend
-        expose:
-            - "8000"
+        ports:
+            - "80:80"
         network_mode: "host"
         env_file: .env
         environment:
             - TZ=PRC
         volumes:
             - ./gxblog_app:/gxblog_app
+        depends_on:
+            - mysql
+            - redis
+
+              #     backend:
+              #         build: ./backend
+              #         expose:
+              #             - "8000"
+              #         network_mode: "host"
+              #         env_file: .env
+              #         environment:
+              #             - TZ=PRC
+              #         volumes:
+              #             - ./gxblog_app:/gxblog_app
               #         depends_on:
               #             - mysql
               #             - redis
-        command: ./wsgi.py
-
-    nginx:
-        build: ./nginx
-        ports:
-            - "80:80"
-        volumes:
-            - ./frontend/dist:/gxblog
-            - ./backend/app/static:/gxblog/resource/static
-        depends_on:
-            - backend
+              #         command: ./wsgi.py
+              #
+              #     nginx:
+              #         build: ./nginx
+              #         ports:
+              #             - "80:80"
+              #         volumes:
+              #             - ./frontend/dist:/gxblog
+              #             - ./backend/app/static:/gxblog/resource/static
+              #         depends_on:
+              #             - backend
 
     mysql:
         image: mysql:5.7

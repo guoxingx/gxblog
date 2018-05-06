@@ -54,7 +54,7 @@ class DevelopmentConfig(Config):
     # SQLALCHEMY_DATABASE_URI = 'mysql://{}:{}@mysql/{}?charset=utf8mb4'.format(mysql_user, mysql_pass, mysql_db)
     # REDIS_URL = 'redis://@redis/0'
     # ETH_RPC_URL = fix_eth_rpc_url('http://ethnode:8545')
-    ETH_RPC_URL = fix_eth_rpc_url('http://localhost:9545')
+    ETH_RPC_URL = 'http://localhost:9545'
 
 
 config = {
