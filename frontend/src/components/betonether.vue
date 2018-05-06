@@ -2,12 +2,12 @@
   <el-row>
     <el-col :xs="24" :sm="24" :md="24" :lg="5" :xl="8" class="right" style="float: right">
       <div class="status">
-        <el-button :type="nodeStatus===0 ? 'success' : 'warning'" @click="refreshNodeStatus(true)" round>
+        <el-button :type="nodeStatus===0 ? 'success' : 'danger'" @click="refreshNodeStatus(true)" round>
           当前状态: {{ nodeStatusString }}
         </el-button>
       </div>
       <div class="status">
-        <el-button :type="nodeStatus===0 ? 'success' : 'warning'" @click="refreshNodeStatus(true)" round>
+        <el-button :type="nodeStatus===0 ? 'success' : 'danger'" @click="refreshNodeStatus(true)" round>
           连接节点数: {{ peerCount }}
         </el-button>
       </div>
@@ -17,7 +17,7 @@
       <div class="left">
         <h1>BetOnEther</h1>
         <h2>基于以太坊私有链</h2>
-        <account :balance="balance" :account="account"></account>
+        <account :balance="balance" :account="account" :nodeStatus="nodeStatus"></account>
         <div class="list">
           <boe-list-cell v-for="boe in boe_list" :key="boe" :boe="boe"></boe-list-cell>
         </div>
@@ -114,7 +114,7 @@
 
       <el-col :span="18" :offset="3">
         <keep-alive>
-          <boe-bets style="margin-top: 20px;" :boe="this.boe" :betList="this.betList" :account="this.account"></boe-bets>
+          <boe-bets style="margin-top: 20px;" :boe="this.boe" :betList="this.betList" :account="this.account" :nodeStatus="nodeStatus"></boe-bets>
         </keep-alive>
       </el-col>
 

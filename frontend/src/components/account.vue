@@ -92,23 +92,25 @@ export default {
         this.account = res.data
         setAccount(res.data)
         this.visible3 = false
+        this.balance = 0
       })
     },
     requestEth () {
       if (this.nodeStatus === 0) {
         requestTestEther(this.account).then(res => {
-          if (res.data.code !== 0) {
+          if (res.data.amount) {
             this.$message({
-              message: res.data.error,
+              message: '请求成功！等交易写入区块才能到账。自行刷新页面:)',
               showClose: true,
-              type: 'warning'
+              type: 'success',
+              duration: 30000
             })
           } else {
+            console.log(res.data)
             this.$message({
-              message: '注意：等交易写入区块才能到账，约几十秒。自行刷新页面:)',
+              message: res.data.message,
               showClose: true,
-              type: 'warning',
-              duration: 30000
+              type: 'warning'
             })
           }
         })

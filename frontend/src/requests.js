@@ -77,12 +77,13 @@ export function betOnEtherWithdraw (id, address, password) {
 }
 
 export function requestTestEther (address) {
-  return post(
-    HOST + '/api/eth/testether',
-    {
-      address: address
-    }
-  )
+  return get('http://faucet.ropsten.be:3001/donate/' + address)
+  // return post(
+  //   HOST + '/api/eth/testether',
+  //   {
+  //     address: address
+  //   }
+  // )
 }
 
 export function getNodeStatus () {

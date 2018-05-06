@@ -19,7 +19,7 @@
     <label>peer count: {{ node_status_dict.get('peer_count') }}</label>
     <label>base balance:
         {% if node_status_dict.get('balance') %}
-            {{ node_status_dict.get('balance') / (10 ** 18) }}
+            {{ (node_status_dict.get('balance') / (10 ** 15)) | int }} finney
         {% else %}
             {{ node_status_dict.get('balance') }}
         {% endif %}

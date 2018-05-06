@@ -2,7 +2,7 @@
 
 import functools
 
-from flask import request, redirect, url_for, render_template, current_app
+from flask import request, redirect, url_for, render_template, current_app, flash
 from flask_login import login_user, login_required, current_user
 
 from . import main
@@ -79,7 +79,9 @@ def betonether():
         if action == 'deploy':
             form = BetOnEtherDeployForm(request.form)
             if boe and form.validate_on_submit():
-                boe.deploy(**form.data)
+                res = boe.deploy(**form.data)
+                if res:
+                    flash(res)
 
         if action == 'txhash':
             boe.load_contract_by_tx_hash()

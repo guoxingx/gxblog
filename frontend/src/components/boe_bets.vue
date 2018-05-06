@@ -60,7 +60,7 @@
 import { betOnEtherWithdraw } from '../requests'
 
 export default {
-  props: ['boe', 'betList', 'account'],
+  props: ['boe', 'betList', 'account', 'nodeStatus'],
   data () {
     return {
       visible0: false
