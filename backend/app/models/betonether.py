@@ -91,7 +91,7 @@ class BetOnEther(BaseModel):
 
             self.host = contract.functions.host().call()
             # self.pool = int(contract.functions.pool().call() / (10 ** 15))
-            self.earnest_money = int(contract.functions.earnestMoney().call() / (10 ** 18))
+            self.earnest_money = int(contract.functions.earnestMoney().call() / (10 ** 15))
             # self.balance = int(contract.functions.balance().call() / (10 ** 15))
             self.win_odds = contract.functions.oddss(0).call()
             self.draw_odds = contract.functions.oddss(1).call()
@@ -111,7 +111,13 @@ class BetOnEther(BaseModel):
 
     def deploy(self, earnest_money, win_odds, draw_odds, lose_odds, host=None, password=None):
         """
-        not yet
+        部署合约
+        @param: earnest_money: <int> 庄家保证金 单位finney
+        @param: win_odds: <int> 主胜利率x1000
+        @param: draw_odds: <int> 平局利率x1000
+        @param: lose_odds: <int> 客胜利率x1000
+        @param: host: optional: <string> 庄家账号，默认使用eth.accounts[0]
+        @param: password: optional: <string> 庄家密码，默认app.config.get('ETH_COINBASE_PASSWORD') 环境变量
         """
         if self.has_contract or self.contract_status:
             return 1
@@ -132,7 +138,7 @@ class BetOnEther(BaseModel):
             w3.toHex(text=self.home), w3.toHex(text=self.visiting),
             w3.toHex(text=remarks), oddss,
             bet_time, game_time,
-            w3.toHex(text=str(self.id))).transact({'from': host, 'value': w3.toWei(earnest_money, 'ether')})
+            w3.toHex(text=str(self.id))).transact({'from': host, 'value': w3.toWei(earnest_money, 'finney')})
         self.tx_hash = w3.toHex(tx_hash)
         self.contract_status = 1
         db.session.add(self)

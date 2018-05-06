@@ -14,22 +14,23 @@ CONFIG = {}
 
 
 def get_w3():
-    return Web3(HTTPProvider(config_value('ETH_RPC_URL')))
+    return Web3(HTTPProvider(config_value('ETH_RPC_URL'), request_kwargs={'timeout': 5}))
 
 
-def get_node_status():
+def get_node_status(show_balance=False):
     if current_app.config.get('ETH_MODE') == 'test':
         return {
             'status': 0,
             'peer_count': 0,
             'message': 'private chain'
         }
+    balance = None
     status = 0
     message = 'working'
     w3 = get_w3()
     peer_count = w3.net.peerCount
     try:
-        w3.eth.getBalance(w3.eth.accounts[0])
+        balance = w3.eth.getBalance(w3.eth.accounts[0])
     except ValueError as e:
         if e.args[0].get('code') == -32000:
             if peer_count > 0:
@@ -41,11 +42,14 @@ def get_node_status():
         else:
             raise e
 
-    return {
+    res = {
         'status': status,
         'peer_count': peer_count,
         'message': message
     }
+    if show_balance:
+        res['balance'] = balance
+    return res
 
 
 def populate_config(config):

@@ -115,7 +115,7 @@ def betonether():
             password = request.form.get('password')
             boe.clear(password)
 
-    node_status_dict = get_node_status()
+    node_status_dict = get_node_status(True)
     node_status = node_status_dict.get('status')
 
     boe_list = BetOnEther.query.filter_by(deleted=False).order_by(BetOnEther.created_at.desc()).all()

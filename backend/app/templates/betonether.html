@@ -11,12 +11,19 @@
 <div class="main">
 
 {% if node_status_dict.get('status') == 0 %}
-<div class="alert alert-success" role="alert">
+<div class="alert alert-success status" role="alert">
 {% else %}
-<div class="alert alert-danger" role="alert">
+<div class="alert alert-danger status" role="alert">
 {% endif %}
-    {{ node_status_dict.get('message') }}.
-    peer count: {{ node_status_dict.get('peer_count') }}
+    <label>{{ node_status_dict.get('message') }}</label>
+    <label>peer count: {{ node_status_dict.get('peer_count') }}</label>
+    <label>base balance:
+        {% if node_status_dict.get('balance') %}
+            {{ node_status_dict.get('balance') / (10 ** 18) }}
+        {% else %}
+            {{ node_status_dict.get('balance') }}
+        {% endif %}
+    </label>
 </div>
 
 {% if boe.contract_status == 3 %}
@@ -138,7 +145,7 @@
 
                 <div class="row mb-3">
                     <div class="col-sm-4">
-                        <label>Earnest Money (In Ether)</label>
+                        <label>Earnest Money (In Finney)</label>
                         <input type="number" class="form-control" name="earnest_money" value="{{ boe.earnest_money }}">
                     </div>
                     <div class="col-sm-4">
@@ -291,6 +298,10 @@
 }
 .form-submit {
     margin-bottom: 40px;
+}
+.status label {
+    margin: 0px;
+    margin-right: 40px;
 }
 </style>
 {% endblock %}

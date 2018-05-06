@@ -1,12 +1,10 @@
 #!coding:utf-8
 
-import os
-
 from flask import Flask
 from flask_cors import CORS
 from flask_login import LoginManager
 # from flask_socketio import SocketIO, emit
-from apscheduler.schedulers.background import BackgroundScheduler
+# from apscheduler.schedulers.background import BackgroundScheduler
 
 from .db import db
 from .utils import populate_config
@@ -37,15 +35,14 @@ def create_app(config_name):
     main_blueprint.url_prefix = '/admin'
     app.register_blueprint(main_blueprint)
 
-    # eth_mode = os.environ.get('ETH_MODE') or 'test'
-    if app.config.get('ETH_MODE') == 'test':
-        from .utils import auto_mine
+    # if app.config.get('ETH_MODE') == 'test':
+    #     from .utils import auto_mine
 
-        def sensor():
-            auto_mine()
+    #     def sensor():
+    #         auto_mine()
 
-        sched = BackgroundScheduler(daemon=True)
-        sched.add_job(sensor, 'interval', seconds=5)
-        sched.start()
+    #     sched = BackgroundScheduler(daemon=True)
+    #     sched.add_job(sensor, 'interval', seconds=5)
+    #     sched.start()
 
     return app
