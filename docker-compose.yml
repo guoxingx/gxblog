@@ -21,6 +21,7 @@ services:
         build: ./nginx
         ports:
             - "80:80"
+        network_mode: "host"
         volumes:
             - ./frontend/dist:/gxblog
             - ./backend/app/static:/gxblog/resource/static

@@ -6,6 +6,7 @@ from flask import request, current_app
 # from web3.auto import w3
 from web3 import Web3, HTTPProvider
 from eth_utils import to_checksum_address
+from requests.exceptions import ReadTimeout
 
 from .db import db
 
@@ -28,7 +29,10 @@ def get_node_status(show_balance=False):
     status = 0
     message = 'working'
     w3 = get_w3()
-    peer_count = w3.net.peerCount
+    try:
+        peer_count = w3.net.peerCount
+    except ReadTimeout as e:
+        peer_count = 0
     try:
         balance = w3.eth.getBalance(w3.eth.accounts[0])
     except ValueError as e:
