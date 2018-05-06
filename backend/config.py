@@ -46,7 +46,6 @@ class TestConfig(Config):
     DEBUG = True
     FLASK_DEBUG = 1
 
-    REDIS_URL = 'redis://@0.0.0.0:6379/0'
     ETH_RPC_URL = 'http://localhost:8545'
 
 
@@ -54,8 +53,8 @@ class DevelopmentConfig(Config):
     DEBUG = True
     FLASK_DEBUG = 1
 
-    SQLALCHEMY_DATABASE_URI = 'mysql://{}:{}@mysql/{}?charset=utf8mb4'.format(mysql_user, mysql_pass, mysql_db)
-    REDIS_URL = 'redis://@redis/0'
+    # SQLALCHEMY_DATABASE_URI = 'mysql://{}:{}@mysql/{}?charset=utf8mb4'.format(mysql_user, mysql_pass, mysql_db)
+    # REDIS_URL = 'redis://@redis/0'
     ETH_RPC_URL = fix_eth_rpc_url('http://ethnode:8545')
 
 

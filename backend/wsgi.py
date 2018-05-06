@@ -9,6 +9,7 @@ if __name__ == '__main__':
     import os
     from app import create_app
     app = create_app(os.getenv('APP_CONFIG') or 'test')
+    app.run()
 
     from gevent.pywsgi import WSGIServer
     from werkzeug.serving import run_with_reloader

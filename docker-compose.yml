@@ -6,15 +6,15 @@ services:
         build: ./backend
         expose:
             - "8000"
+        network_mode: "host"
         env_file: .env
         environment:
             - TZ=PRC
         volumes:
             - ./gxblog_app:/gxblog_app
-        depends_on:
-            - ethnode
-            - mysql
-            - redis
+              #         depends_on:
+              #             - mysql
+              #             - redis
         command: ./wsgi.py
 
     nginx:
@@ -27,29 +27,11 @@ services:
         depends_on:
             - backend
 
-    ethnode:
-        image: ethereum/client-go
-        ports:
-            - "8545:8545"
-            - "30303:30303"
-        environment:
-            - ETH_MODE=${ETH_MODE}
-            - TZ=PRC
-        volumes:
-            - ./data/ethereum/ropsten:/root/ropsten
-            - ./data/ethereum/private:/root/private
-            - ./genesis.json:/root/genesis.json
-            - ./run_eth.sh:/root/run_eth.sh
-        # command: bash /root/run_eth.sh
-        # command: "--datadir /root/ropsten --testnet --syncmode light --rpc --rpcaddr 0.0.0.0 --rpccorsdomain * --rpcapi eth,net,web3,personal"
-        command: "--datadir /root/ropsten --testnet --syncmode light --rpc --rpcaddr 0.0.0.0 --rpcapi eth,net,web3,personal"
-        # command: "--datadir /root/private/data --networkid 262412 --rpc --rpcaddr 0.0.0.0 --rpcapi eth,net,web3,personal,miner"
-
     mysql:
         image: mysql:5.7
-        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
         ports:
             - "3306:3306"
+        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
         environment:
             - TZ=PRC
             - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
