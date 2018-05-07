@@ -1,13 +1,34 @@
 <template>
 
   <div class="unit">
-    <el-row>
-      <el-col :xs="0" :sm="8" :md="6" :lg="5" :xl="4">
+    <div>
+      <div style="float: left; margin-right: 30px;">
+        <router-link :to="{ name: 'blog', params: { id: unit.id }}">
+          <img :src="unit.image">
+        </router-link>
+      </div>
+      <div style="text-align: left;">
+        <div>
+          <router-link :to="{ name: 'blog', params: { id: unit.id }}">
+            <h3>{{ unit.title }}</h3>
+          </router-link>
+        </div>
+        <div style="">
+          <p>{{ unit.summary }}</p>
+        </div>
+        <div style="margin-bottom: 10px;">
+          <el-tag class="tag" v-for="tag in unit.tags" :key="tag" type="success">{{ tag }}</el-tag>
+        </div>
+      </div>
+    </div>
+
+<!--     <el-row>
+      <el-col :xs="0" :sm="8" :md="12" :lg="8" :xl="8">
         <router-link :to="{ name: 'blog', params: { id: unit.id }}">
           <img :src="unit.image">
         </router-link>
       </el-col>
-      <el-col :xs="24" :sm="16" :md="18" :lg="19" :xl="20">
+      <el-col :xs="24" :sm="16" :md="12" :lg="16" :xl="16" class="unit-text">
         <el-row>
           <router-link :to="{ name: 'blog', params: { id: unit.id }}">
             <h3>{{ unit.title }}</h3>
@@ -20,7 +41,7 @@
           <el-tag class="tag" v-for="tag in unit.tags" :key="tag" type="success">{{ tag }}</el-tag>
         </el-row>
       </el-col>
-    </el-row>
+    </el-row> -->
   </div>
 
 </template>
@@ -36,8 +57,8 @@ export default {
   display: inline-block;
   margin-top: 30px;
   width: 95%;
-  height: 200px;
-  max-height: 200px;
+  /*height: 200px;*/
+  /*max-height: 200px;*/
 
   padding-top: 20px;
   border-bottom: 0.5px solid #BACCE3;
@@ -46,7 +67,9 @@ export default {
 .unit img {
   margin: 0 auto;
   max-height: 200px;
+  width: 300px;
   /*max-width: 100%;*/
+  /*max-width: 800px;*/
   vertical-align: middle;
 }
 
@@ -58,4 +81,12 @@ export default {
 .unit a {
   text-decoration: none;
 }
+
+.unit-left {
+  float: left;
+}
+.unit-text {
+  text-align: left;
+}
+
 </style>
