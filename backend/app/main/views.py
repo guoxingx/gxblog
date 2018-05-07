@@ -6,9 +6,9 @@ from flask import request, redirect, url_for, render_template, current_app, flas
 from flask_login import login_user, login_required, current_user
 
 from . import main
-from .forms import LoginForm, BetOnEtherCreateForm, BetOnEtherDeployForm
-from ..models import User, BetOnEther, Role
-from ..utils import get_node_status
+from .forms import LoginForm, BetOnEtherCreateForm, BetOnEtherDeployForm, BlogInsertForm
+from ..models import User, BetOnEther, Role, Blog
+from ..utils import get_node_status, get_saved_blog_files, save_image, get_saved_images, get_images_dir, save_blog_file
 from .. import login_manager, db
 
 
@@ -129,6 +129,66 @@ def betonether():
         bet_list = boe.query_bets(qa)
 
     return render('betonether.html', boe=boe, boe_list=boe_list, bet_list=bet_list, node_status_dict=node_status_dict)
+
+
+@main.route('/blogs', methods=['GET', 'POST'])
+@login_required
+@roles_required('admin')
+def blogs():
+    _id = request.args.get('id')
+    blog = Blog.query.get(_id) if _id else None
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'insert':
+            form = BlogInsertForm(request.form)
+            if form.validate_on_submit():
+                if not blog:
+                    blog = Blog()
+                for k, v in form.data.items():
+                    setattr(blog, k, v)
+                db.session.add(blog)
+                db.session.commit()
+
+        elif action == 'delete':
+            if blog:
+                db.session.delete(blog)
+                db.session.commit()
+                blog = None
+
+        elif action == 'insertfile':
+            blogfile = request.files.get('file')
+            filename = request.form.get('name')
+            save_blog_file(blogfile, filename)
+
+    file_list = get_saved_blog_files()
+    blog_list = Blog.query.order_by(Blog.created_at.desc()).all()
+
+    return render('blogs.html', blog=blog, file_list=file_list, blog_list=blog_list)
+
+
+@main.route('/images', methods=['GET', 'POST'])
+@login_required
+@roles_required('admin')
+def images():
+
+    if request.method == 'POST':
+        if request.form.get('action') == 'insert':
+            image = request.files.get('image')
+            filename = request.form.get('name')
+            save_image(image, filename)
+
+        elif request.form.get('action') == 'delete':
+            pass
+
+    image_list = get_saved_images()
+    save_path = get_images_dir()
+
+    return render('images.html', image_list=image_list, save_path=save_path, image_url=image_url)
+
+
+def image_url(image_name):
+    return url_for('static', filename='images/{}'.format(image_name))
 
 
 @main.before_app_first_request

@@ -24,12 +24,12 @@ if (process.env.NODE_ENV === 'development') {
   HOST = 'http://localhost:5000'
 }
 
-export function getArticleList () {
-  return get(HOST + '/api/articles')
+export function getBlogList () {
+  return get(HOST + '/api/blogs')
 }
 
-export function getArticle (id) {
-  return get(HOST + '/api/articles/' + id)
+export function getBlog (id) {
+  return get(HOST + '/api/blogs/' + id)
 }
 
 export function getHtml (url) {

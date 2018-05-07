@@ -5,3 +5,5 @@ data/
 migrations
 tags
 .env
+**/static/blogs/*
+**/static/images/*

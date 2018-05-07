@@ -68,10 +68,6 @@ class BetOnEther(BaseModel):
             return f.read()
 
     @property
-    def contract_init_params(self):
-        return {}
-
-    @property
     def contract(self):
         try:
             return getattr(self, '_contract')
@@ -86,6 +82,9 @@ class BetOnEther(BaseModel):
                 return self._contract
 
     def sync_data(self):
+        """
+        从合同加载参数并保存到数据库
+        """
         try:
             contract = self.contract
 
@@ -146,6 +145,9 @@ class BetOnEther(BaseModel):
         return 0
 
     def load_contract_by_tx_hash(self):
+        """
+        用tx_hash来加载合约
+        """
         if self.contract_status != 1:
             return 1
         tx_receipt = w3.eth.getTransactionReceipt(self.tx_hash)
@@ -159,6 +161,11 @@ class BetOnEther(BaseModel):
         return 2
 
     def load_contract(self, address=None, sync_data=True):
+        """
+        从合约地址加载合约
+        @param: address: <string> 合约地址
+        @param: sync_data: optional <bool> 是否同步合约数据
+        """
         if self.has_contract:
             pass
 
@@ -168,6 +175,9 @@ class BetOnEther(BaseModel):
         return contract
 
     def bet(self, beton, amount, account, password):
+        """
+        下注
+        """
         account = to_checked_address(account)
         params = {'from': account, 'value': w3.toWei(amount, 'finney')}
         res = w3.personal.unlockAccount(account, password)
@@ -186,9 +196,13 @@ class BetOnEther(BaseModel):
         return 0, res
 
     def alterOdds(self, win, draw, lose):
+        """
+        """
         pass
 
     def confirm(self, result, password=None):
+        """
+        """
         password = password or current_app.config.get('ETH_COINBASE_PASSWORD')
         w3.personal.unlockAccount(self.host, password)
         gas = self.contract.functions.confirm(result).estimateGas({'from': self.host})
@@ -196,18 +210,24 @@ class BetOnEther(BaseModel):
         return w3.toHex(res)
 
     def withdraw(self, account, password):
+        """
+        """
         account = to_checked_address(account)
         w3.personal.unlockAccount(account, password)
         res = self.contract.functions.withdraw().transact({'from': account})
         return w3.toHex(res)
 
     def clear(self, password=None):
+        """
+        """
         password = password or current_app.config.get('ETH_COINBASE_PASSWORD')
         w3.personal.unlockAccount(self.host, password)
         res = self.contract.functions.clear().transact({'from': self.host})
         return w3.toHex(res)
 
     def query_bets(self, account):
+        """
+        """
         res = []
         account = to_checked_address(account)
         for i in range(10):

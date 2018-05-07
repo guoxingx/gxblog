@@ -6,7 +6,7 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '/',
+      path: '/blogs',
       name: '',
       component: function (resolve) {
         require(['@/components/blog_list'], resolve)

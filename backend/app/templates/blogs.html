@@ -1,0 +1,141 @@
+{% extends "base.html" %} 
+
+{% block title %} GXBLOG {% endblock %} 
+
+{% block head %} 
+{{ super() }}
+{% endblock %}
+
+{% block body %}
+
+<div class="main">
+    <div class="row">
+        <div class="col-md-4">
+        <form class="form-submit" method="POST" enctype="multipart/form-data" action="">
+            <h4>New Blog</h4>
+            <hr>
+
+            <div class="input-group mb-3">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" name="file">
+                    <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="name" placeholder="Title">
+                </div>
+            </div>
+
+            <hr class="mb-4">
+            <input name="action" value="insertfile" hidden>
+            <button class="btn btn-primary btn-lg btn-block mb-3" type="submit">Insert File</button>
+        </form>
+
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Files</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for blogfile in file_list %}
+                    <tr>
+                        <th scope="row">{{ loop.index }}</th>
+                        <td>{{ blogfile }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        </div>
+
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-md-12">
+                    <form class="form-submit" method="POST" action="">
+
+                    <div class="col-sm-12 mb-3">
+                        <label>Title</label>
+                        <input type="text" class="form-control" name="title" value="{{ blog.title }}">
+                    </div>
+
+                    <div class="col-sm-12 mb-3">
+                        <label>Image</label>
+                        <input type="text" class="form-control" name="image" value="{{ blog.image }}">
+                    </div>
+
+                    <div class="col-sm-12 mb-3">
+                        <label>Summary</label>
+                        <input type="text" class="form-control" name="summary" value="{{ blog.summary }}">
+                    </div>
+
+                    <div class="col-sm-12 mb-3">
+                        <label>File</label>
+                        <input type="text" class="form-control" name="path" value="{{ blog.path }}">
+                    </div>
+
+                    <div class="col-sm-12 mb-3">
+                        <label>Tags</label>
+                        <input type="text" class="form-control" name="tagstring" value="{{ blog.tagstring }}">
+                    </div>
+
+                    <div class="col-sm-12">
+                        <input name="action" value="insert" hidden>
+                        <button class="btn btn-success btn-lg btn-block mb-3" type="submit">Insert</button>
+                    </div>
+                    </form>
+
+                </div>
+
+                <div class="col-md-8 offset-md-2 mb-4">
+                    <h4 class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Blogs</span>
+                        <span class="badge badge-secondary badge-pill">{{ blog_list | length }}</span>
+                    </h4>
+                    <ul class="list-group mb-3">
+                        {% for blog in blog_list %}
+                            <li class="list-group-item d-flex justify-content-between lh-condensed">
+                                <div>
+                                    <a href="?id={{ blog.id }}">
+                                        <h6 class="my-0">{{ blog.title }}</h6>
+                                    </a>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+
+<style>
+.main {
+    margin: 50px;
+    /*margin-top: 50px;*/
+}
+.card {
+    margin-bottom: 20px;
+}
+.card input {
+    /*margin-top: 10px;*/
+}
+button {
+    margin: 0 auto;
+    margin-top: 10px;
+    width: 70%;
+}
+.table {
+    margin-top: 50px;
+}
+
+</style>
+{% endblock %}

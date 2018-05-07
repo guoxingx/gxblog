@@ -18,9 +18,10 @@ def register_api(resource, route, endpoint=None):
     api.add_resource(resource, api_route, endpoint=api_endpoint)
 
 
-from .articles import Articles, Article
-register_api(Articles, 'articles')
-register_api(Article, 'articles/<int:_id>')
+from .blog import Blogs, Blog
+register_api(Blogs, 'blogs')
+register_api(Blog, 'blogs/<id>')
+
 
 from .ethereum import (
     EthStatus,

@@ -1,0 +1,71 @@
+{% extends "base.html" %} 
+
+{% block title %} GXBLOG {% endblock %} 
+
+{% block head %} 
+{{ super() }}
+{% endblock %}
+
+{% block body %}
+
+<div class="main">
+    <div class="row">
+        <form class="form-submit" method="POST" enctype="multipart/form-data" action="">
+            <h4>New Image</h4>
+            <hr>
+
+            <div class="input-group mb-3">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" name="image">
+                    <label class="custom-file-label" for="inputGroupFile01">Choose file</label>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-sm-12">
+                    <input type="text" class="form-control" name="name" placeholder="Title">
+                </div>
+            </div>
+
+            <hr class="mb-4">
+            <input name="action" value="insert" hidden>
+            <button class="btn btn-primary btn-lg btn-block mb-3" type="submit">Insert Image</button>
+        </form>
+
+
+        {% for image in image_list %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="card">
+                    <img class="card-img-top" src="{{ image_url(image) }}">
+                    <div class="card-body">
+                        <p class="card-text">{{ image_url(image) }}</p>
+                    </div>
+                    <form class="form-submit" method="POST" action="">
+                        <input name="action" value="delete" hidden>
+                        <button class="btn btn-danger btn-block mb-3" type="submit">Delete</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+
+<style>
+.main {
+    padding: 50px;
+    /*margin-top: 50px;*/
+}
+.card {
+    margin-bottom: 20px;
+}
+.card button {
+    margin: 0 auto;
+    width: 80%;
+}
+
+</style>
+{% endblock %}

@@ -9,7 +9,7 @@
 </template>
 
 <script type="text/javascript">
-import { getArticle, getHtml } from '../requests'
+import { getBlog, getHtml } from '../requests'
 
 export default {
   template: '#tpl',
@@ -25,13 +25,13 @@ export default {
 
   created () {
     var aid = this.$route.params.id
-    getArticle(aid).then(res => {
+    getBlog(aid).then(res => {
       this.blogimg = res.data.image
       this.tags = res.data.tags
       this.title = res.data.title
-      this.date = res.data.date ? res.data.date : '2017.11.19'
+      this.date = res.data.created_at
 
-      getHtml(res.data.html).then(response => {
+      getHtml(res.data.path).then(response => {
         console.log(response.data)
         this.html = response.data
       })

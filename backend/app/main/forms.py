@@ -1,7 +1,7 @@
 
 from flask_wtf import FlaskForm
 
-from wtforms import StringField, PasswordField, FloatField, IntegerField
+from wtforms import StringField, PasswordField, FloatField, IntegerField, FieldList
 from wtforms.validators import DataRequired, Length, Optional
 
 
@@ -30,3 +30,11 @@ class BetOnEtherDeployForm(FlaskForm):
     win_odds = FloatField('win_odds', validators=[DataRequired()])
     draw_odds = FloatField('draw_odds', validators=[DataRequired()])
     lose_odds = FloatField('lose_odds', validators=[DataRequired()])
+
+
+class BlogInsertForm(FlaskForm):
+    title = StringField('title', validators=[DataRequired()])
+    image = StringField('image', validators=[DataRequired()])
+    summary = StringField('summary', validators=[DataRequired()])
+    path = StringField('path', validators=[DataRequired()])
+    tagstring = StringField('tagstring', validators=[DataRequired()])

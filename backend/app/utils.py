@@ -56,6 +56,33 @@ def get_node_status(show_balance=False):
     return res
 
 
+def to_checked_address(address):
+    """
+    非混合大小写的addres会报错，不知道是否是bug
+    将address转换成混合大小写
+    """
+    res = to_checksum_address(address)
+    if res.lower() == address or res.upper() == address:
+        return res
+    return address
+
+
+def auto_mine():
+    """
+    """
+    w3 = get_w3()
+    eth = w3.eth
+    miner = w3.miner
+    if len(eth.getBlock('pending').transactions) > 0:
+        if not eth.mining:
+            print('start mine')
+            miner.start(1)
+    else:
+        if eth.mining:
+            print('stop mine')
+            miner.stop()
+
+
 def populate_config(config):
     global CONFIG
     for key in dir(config):
@@ -116,28 +143,25 @@ def form_by_json_request(form_class):
     return get_form(form_class, request.json or request.form)
 
 
-def to_checked_address(address):
-    """
-    非混合大小写的addres会报错，不知道是否是bug
-    将address转换成混合大小写
-    """
-    res = to_checksum_address(address)
-    if res.lower() == address or res.upper() == address:
-        return res
-    return address
+def get_saved_blog_files():
+    return os.listdir(get_blog_files_dir())
 
 
-def auto_mine():
-    """
-    """
-    w3 = get_w3()
-    eth = w3.eth
-    miner = w3.miner
-    if len(eth.getBlock('pending').transactions) > 0:
-        if not eth.mining:
-            print('start mine')
-            miner.start(1)
-    else:
-        if eth.mining:
-            print('stop mine')
-            miner.stop()
+def get_saved_images():
+    return os.listdir(get_images_dir())
+
+
+def save_image(image, filename):
+    if '.' not in filename:
+        filename = '{}.png'.format(filename)
+    save_path = '{}/{}'.format(get_images_dir(), filename)
+    image.save(save_path)
+
+
+def get_blog_files_dir():
+    return get_static_dir('blogs')
+
+
+def save_blog_file(blogfile, filename):
+    save_path = '{}/{}.html'.format(get_blog_files_dir(), filename)
+    blogfile.save(save_path)
