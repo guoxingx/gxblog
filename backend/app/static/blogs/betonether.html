@@ -624,26 +624,27 @@ contract BetOnEther {
 
 <p>ropsten是以太坊的测试链，可以免费获取测试币，用来测试自己的智能合约。</p>
 
-<p><strong>免费获取测试币的方式：</strong><br/>
+<blockquote>
+<p>免费获取测试币的方式<br/>
 1. <a href="http://faucet.ropsten.be:3001/">http://faucet.ropsten.be:3001/</a><br/>
-2. chrome插件<a href="https://metamask.io/">metaMask</a><br/>
-你可以写一个脚本去要饭，不过他们都有greedylist。</p>
+2. chrome插件<a href="https://metamask.io/">metaMask</a></p>
+</blockquote>
 
-<p>连接到ropsten：<br/>
-<code>geth --datadir anywhereyoulike --testnet --syncmode light</code></p>
+<p>你可以写一个脚本去要饭，不过他们有灰名单机制。</p>
+
+<h4 id="toc_10">连接到ropsten：</h4>
+
+<p><code>geth --datadir anywhereyoulike --testnet --syncmode light</code></p>
 
 <ul>
-<li><code>--testnet</code> 使用测试链，也可以用<code>networkid 3</code>，一样的效果，ropsten的id就是3，main是1。2是以前的测试链，现在不用了。</li>
+<li><code>--testnet</code> 使用测试链，也可以用<code>networkid 3</code>，一样的效果，ropsten的id就是3，正式网络main是1。以前的测试链用的是2，测试链改为ropsten之后就不用了。</li>
 <li><code>--datadir</code> 可以不设置，mac默认目录是<strong>/Users/<user>/Library/Ethereum/testnet/</strong>。我习惯性会设置，需要注意的是，不要误删文件夹。当然也可以作为一了百了的手段。</li>
-<li><code>--syncmode light</code> 开启light同步模式。这种模式下，创世块直到最新区块之间的区块都会只同步一个head，可以用getBlock看看。大概几分钟就可以同步完，前提是有足够多的节点。ropsten的light模式找到节点的时间可能 <del>一天都找不到</del> 很久。</li>
+<li><code>--syncmode light</code> 开启light同步模式。这种模式下，创世块直到最新区块之间的区块都会只同步一个head，可以用getBlock看看。大概几分钟就可以同步完，前提是有足够多的节点。ropsten的light模式找到可用节点的时间可能 <del>一天都找不到</del> 很久。</li>
 </ul>
 
-<p><strong>如果不用light模式，区块同步需要几个小时以及几十G的数据。</strong><br/>
-所以忍着吧，毕竟测试链不要钱。我的做法是在告诉用户当前节点是否可用。</p>
+<p><strong>如果不用light模式，区块同步需要几个小时以及几十G的数据。</strong></p>
 
-<p><strong>这里我们主要介绍私有链的做法</strong></p>
-
-<h3 id="toc_10">web3.js</h3>
+<h3 id="toc_11">web3.js</h3>
 
 <p>这是我刚接触智能合约时的部署方式，相信大部分人也一样。<br/>
 这里介绍的是geth console（也就是web3.js交互方式）的方式部署，较多手动操作，看看就好，主要是熟悉一下remix的用法。</p>
@@ -688,21 +689,27 @@ var betonether = betonetherContract.new(修改后的)
 
 <p>你可以创建第二个，第三个用户来作为玩家，调用betonether.bet()等函数来玩这个足彩游戏。</p>
 
-<h3 id="toc_11">web3.py</h3>
+<h3 id="toc_12">web3.py</h3>
 
 <p>当然不可能一直用手动的方式部署合约，我们需要建立一个完整的应用，来一键部署合约，并与之交互。因为我的后台用的是python，所以我将用web3.py作为python和geth的交互。</p>
 
 <p>并非指web3.js是手动而py是自动，只是因为我刚好用python作为后台，方便搭建python应用。</p>
 
-<p>具体见下文python后端</p>
+<h2 id="toc_13">python 后端</h2>
 
-<h2 id="toc_12">python 后端</h2>
+<p>因为我的目的是将应用搭建在自己的blog上，因此沿用了blog的架构，python flask作为后端，并将nginx，mysql等服务全部用docker启动。</p>
 
-<p>实现我们这个智能合约的后端，需要实现的也很简单，无非就是用web3.py对接合约接口，提供一些可视化的界面操作。</p>
+<p>在此基础上要做的：</p>
 
-<p>这部分的完整代码同样可以在我的<a href="">github</a>上找到。</p>
+<ul>
+<li>启动一个go-ethereum node。</li>
+<li>用web3.py 与eth node交互。</li>
+<li>后端实现合约部署，以及合约的一些管理员接口。</li>
+<li>用rest api 给前端提供接口调用智能合约相关功能。</li>
+<li>前端实现。</li>
+</ul>
 
-<h3 id="toc_13">model</h3>
+<h3 id="toc_14">model</h3>
 
 <p>我用sqlalchemy定义了一个betonether数据类，基于mysql。</p>
 
@@ -750,7 +757,7 @@ var betonether = betonetherContract.new(修改后的)
     deleted = db.Column(db.Boolean(), default=False)
 </code></pre>
 
-<h3 id="toc_14">部署合约</h3>
+<h3 id="toc_15">部署合约</h3>
 
 <p>和js console一样，部署智能合约需要2个东西：abi和codebyte，都由solidity编译器编译.sol文件而来。</p>
 
@@ -836,7 +843,7 @@ var betonether = betonetherContract.new(修改后的)
         return contract
 </code></pre>
 
-<h3 id="toc_15">接口实现</h3>
+<h3 id="toc_16">接口实现</h3>
 
 <p>此处的合约主要有以下情况：</p>
 
@@ -873,23 +880,11 @@ def query_bets(self, account):
 
 <p><strong>之后就用你喜欢的方式搭建前端和后端吧！</strong></p>
 
-<h2 id="toc_16">应用架构</h2>
-
-<p>因为我的目的是将应用搭建在自己的blog上，因此沿用了blog的架构，python flask作为后端，并将nginx，mysql等服务全部用docker启动。</p>
-
-<p>在此基础上要做的：</p>
-
-<ul>
-<li>启动一个go-ethereum docker container，就叫ethnode吧。</li>
-<li>用web3.py 与ethnode交互。</li>
-<li>后端实现合约部署，以及合约的一些管理员接口。</li>
-<li>用rest api 给前端提供接口调用智能合约相关功能。</li>
-<li>前端实现。</li>
-</ul>
-
-<p>有兴趣的可以看我另一篇<a href="">本博客的搭建</a></p>
-
 <h2 id="toc_17">其他</h2>
+
+<p>其实我的dapp的前后端和连接的以太坊节点是运行在不同的vps上的，这样是有好处的，两个服务相互之间不会有影响。当然最主要的原因还是贫穷，买不起更好的服务器。</p>
+
+<p><strong>docker访问远程以太坊节点</strong>我还踩了一些坑，有兴趣的请看<a href="">这里</a>。</p>
 
 </div></body>
 

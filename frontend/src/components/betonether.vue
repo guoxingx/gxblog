@@ -16,7 +16,7 @@
     <el-col :xs="24" :sm="6" :md="6" :lg="5" :xl="4">
       <div class="left">
         <h1>BetOnEther</h1>
-        <h2>基于以太坊私有链</h2>
+        <h2>基于以太坊测试链</h2>
         <account :balance="balance" :account="account" :nodeStatus="nodeStatus"></account>
         <div class="list">
           <boe-list-cell v-for="boe in boe_list" :key="boe" :boe="boe"></boe-list-cell>
