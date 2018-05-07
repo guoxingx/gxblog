@@ -28,8 +28,8 @@ class Blog(BaseModel):
     tags = db.relationship('Tag', secondary=blog_tag,
                            backref=db.backref('Blog', lazy='dynamic'))
 
-    def add_tags(self, *tagnames):
-        print('add_tags', tagnames)
+    def alter_tags(self, *tagnames):
+        self.tags.clear()
         for name in tagnames:
             if not name:
                 continue
@@ -37,7 +37,8 @@ class Blog(BaseModel):
             if not tag:
                 tag = Tag(name=name)
                 db.session.add(tag)
-            self.tags.append(tag)
+            if tag not in self.tags:
+                self.tags.append(tag)
         db.session.add(self)
         db.session.commit()
 
@@ -51,7 +52,7 @@ class Blog(BaseModel):
 
     @tagstring.setter
     def tagstring(self, tagstring):
-        self.add_tags(*[n.strip() for n in tagstring.split(',')])
+        self.alter_tags(*[n.strip() for n in tagstring.split(',')])
 
     def to_json(self):
         return {

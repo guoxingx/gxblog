@@ -13,7 +13,27 @@
     <link href="https://cdn.bootcss.com/bootstrap/4.1.0/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
-<body class="bg-light">
+<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a class="navbar-brand" href="#">Index</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.images') }}">Images</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.blogs') }}">Blogs</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.betonether') }}">BetOnEther</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<body class="bg-light" style="margin-top: 80px;">
     {% block body %} {% endblock %} 
 </body>
 

@@ -11,7 +11,7 @@ services:
         environment:
             - TZ=PRC
         volumes:
-            - ./gxblog_app:/gxblog_app
+            - ./backend/app/static:/backend/app/static
         depends_on:
             - mysql
             - redis

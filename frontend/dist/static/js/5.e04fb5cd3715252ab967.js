@@ -1,0 +1,2 @@
+webpackJsonp([5],{dpa0:function(e,t){},mzkE:function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var n={render:function(){var e=this.$createElement,t=this._self._c||e;return t("el-row",{attrs:{type:"flex",justify:"center"}},[t("el-col",{attrs:{xs:24,sm:23,md:22,lg:21,xl:20}},[t("footer",{staticClass:"footer"},[t("h4",[this._v("暂时不知道写什么内容的footer")])])])],1)},staticRenderFns:[]};var s=r("VU/8")(null,n,!1,function(e){r("dpa0")},null,null);t.default=s.exports}});
+//# sourceMappingURL=5.e04fb5cd3715252ab967.js.map

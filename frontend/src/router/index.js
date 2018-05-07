@@ -6,8 +6,13 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
+      path: '/',
+      name: 'index',
+      redirect: '/blogs'
+    },
+    {
       path: '/blogs',
-      name: '',
+      name: 'blogs',
       component: function (resolve) {
         require(['@/components/blog_list'], resolve)
       }
@@ -20,7 +25,7 @@ export default new Router({
       }
     },
     {
-      path: '/blog/:id',
+      path: '/blogs/:id',
       name: 'blog',
       component: function (resolve) {
         require(['@/components/blog'], resolve)

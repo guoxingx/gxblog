@@ -1,10 +1,11 @@
 
 <template>
-  <div class="main">
-    <h1>{{ title }}</h1>
-    <el-tag class="tag" v-for="tag in tags" :key="tag" type="success">{{ tag }}</el-tag>
-    <h4 class="date">{{ date }}</h4>
+  <div class="blog-main">
     <div v-html="html" class="html" id="html"></div>
+    <div class="blog-main-footer">
+      <el-tag class="tag" v-for="tag in tags" :key="tag" type="success">{{ tag }}</el-tag>
+      <h4 class="date">{{ date }}</h4>
+    </div>
   </div>
 </template>
 
@@ -34,6 +35,9 @@ export default {
       getHtml(res.data.path).then(response => {
         console.log(response.data)
         this.html = response.data
+        // document.getElementsByTagName("body")[0].className = "fixme"
+        document.body.className = 'fixme'
+        // document.body.style.cssText = "backgound: red;"
       })
     })
   }
@@ -50,5 +54,20 @@ h1 {
 }
 .date {
   margin-left: 10px;
+}
+.fixme {
+  /*background: green;*/
+  /*width: 100%;*/
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 15px;
+}
+.blog-main {
+  margin: 0 auto;
+  max-width: 800px;
+}
+.blog-main-footer {
+  margin-top: 10px;
+  text-align: right;
 }
 </style>

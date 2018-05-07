@@ -46,7 +46,7 @@ export default {
 .unit img {
   margin: 0 auto;
   max-height: 200px;
-  max-width: 100%;
+  /*max-width: 100%;*/
   vertical-align: middle;
 }
 

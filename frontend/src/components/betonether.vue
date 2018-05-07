@@ -270,7 +270,7 @@ export default {
         for (var i in res.data) {
           if (res.data[i].id === Number(bid)) { this.boe = res.data[i] }
         }
-        if (this.boe === null) {
+        if (!this.boe.id) {
           this.boe = res.data[0]
         }
         this.boes_count = res.data.length
