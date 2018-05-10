@@ -14,25 +14,11 @@
         <div class="space right"></div>
       </el-col>
     </el-row>
-    <div class="comments"></div>
   </div>
 </template>
 
 <script>
 import { getBlogList } from '@/js/requests'
-import 'gitment/style/default.css'
-import Gitment from 'gitment'
-
-const gitment = new Gitment({
-  id: '',
-  owner: 'guoxingx',
-  repo: 'blog-comments',
-  oauth: {
-    client_id: 'ec6b689bac37f67820ac',
-    client_secret: '6be0eaffa76662428d856119183977b652de9564'
-  }
-})
-gitment.render('comments')
 
 export default {
   name: 'blog_list',
@@ -57,5 +43,8 @@ export default {
 <style>
 .blogs {
   text-align: center;
+}
+.space {
+  min-height: 100px;
 }
 </style>

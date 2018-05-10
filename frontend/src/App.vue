@@ -5,14 +5,14 @@
 <template>
   <div id="app">
     <!-- <div class="limited-nav"> -->
-      <el-menu mode="horizontal" @select="handleSelect" class="sometimesnaive">
+      <el-menu mode="horizontal" @select="handleSelect" style="position: fixed; top: 0; width: 100%; margin-top: 10px; margin-right: 10px; z-index: 1234; opacity: 0.95;">
         <el-menu-item index="1" @click="toblogs()">blogs</el-menu-item>
         <el-menu-item index="2" @click="toboe()">betonether</el-menu-item>
         <el-menu-item index="3" @click="togithub()">my github</el-menu-item>
       </el-menu>
     <!-- </div> -->
 
-    <div class="main" style="margin-top: 60px;">
+    <div class="main" style="margin-top: 60px;border-radius: 10px;min-height: 620px;">
       <!-- <keep-alive> -->
         <router-view/>
       <!-- </keep-alive> -->
@@ -51,26 +51,5 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
   margin-top: 0px;
-}
-.main {
-  border-radius: 10px;
-  min-height: 620px;
-}
-.space {
-  min-height: 100px;
-}
-.limited-nav {
-  /*width: 200px;*/
-  min-width: 200px;
-  max-width: 760px;
-  margin: 0 auto;
-}
-.sometimesnaive {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  margin-top: 10px;
-  margin-right: 10px;
-  z-index: 1234;
 }
 </style>

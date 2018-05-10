@@ -2,16 +2,30 @@
 <template>
   <div class="blog-main">
     <vue-headful title="GXBlog"/>
-    <div v-html="html" class="html" id="html"></div>
+    <div v-html="html" class="html"></div>
     <div class="blog-main-footer">
       <el-tag class="tag" v-for="tag in tags" :key="tag" type="success">{{ tag }}</el-tag>
       <h4 class="date">{{ date }}</h4>
     </div>
+    <div id="comment"></div>
   </div>
 </template>
 
 <script type="text/javascript">
 import { getBlog, getHtml } from '@/js/requests'
+// import Gitment from 'gitment'
+// import 'gitment/style/default.css'
+
+// const gitment = new Gitment({
+//   // id: '页面 ID',
+//   owner: 'guoxingx',
+//   repo: 'blog-comments-test',
+//   oauth: {
+//     client_id: '15f2b76b369424268fd6',
+//     client_secret: 'a0c16b867fd960b011c074709590a43a87807138',
+//   },
+// })
+// gitment.render('comment')
 
 export default {
   template: '#tpl',
@@ -44,8 +58,6 @@ export default {
             this.html = response.data
             document.body.className = 'fixme'
           })
-        } else {
-          alert('fuck')
         }
       })
     }
