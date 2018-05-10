@@ -1,6 +1,5 @@
 <template>
   <div>
-  <vue-headful title="GXBlog - BetOnEtherBet"/>
   <el-row>
     <el-col :xs="24" :sm="24" :md="24" :lg="5" :xl="8" class="right" style="float: right">
       <div class="status">
@@ -299,6 +298,10 @@ export default {
         })
       }
     }
+  },
+  beforeRouteEnter (to, from, next) {
+    window.document.title = 'GXBlog - BetOnEther'
+    next(vm => {})
   }
 }
 </script>

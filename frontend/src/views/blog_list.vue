@@ -1,6 +1,5 @@
 <template>
   <div>
-    <vue-headful title="GXBlog"/>
     <el-row>
       <el-col :xs="2" :sm="2" :md="2" :lg="3" :xl="4">
         <div class="space left"></div>
@@ -36,6 +35,10 @@ export default {
         this.blogs = res.data.data
       }
     })
+  },
+  beforeRouteEnter (to, from, next) {
+    window.document.title = 'GXBlog'
+    next(vm => {})
   }
 }
 </script>

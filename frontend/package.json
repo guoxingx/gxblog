@@ -15,7 +15,6 @@
     "element-ui": "^2.3.6",
     "gitment": "0.0.3",
     "vue": "^2.5.2",
-    "vue-headful": "^2.0.1",
     "vue-router": "^3.0.1"
   },
   "devDependencies": {

@@ -1,36 +1,25 @@
 
 <template>
   <div class="blog-main">
-    <vue-headful title="GXBlog"/>
     <div v-html="html" class="html"></div>
     <div class="blog-main-footer">
       <el-tag class="tag" v-for="tag in tags" :key="tag" type="success">{{ tag }}</el-tag>
       <h4 class="date">{{ date }}</h4>
     </div>
-    <div id="comment"></div>
+    <div id="commentsContainer"></div>
   </div>
 </template>
 
 <script type="text/javascript">
 import { getBlog, getHtml } from '@/js/requests'
-// import Gitment from 'gitment'
-// import 'gitment/style/default.css'
-
-// const gitment = new Gitment({
-//   // id: '页面 ID',
-//   owner: 'guoxingx',
-//   repo: 'blog-comments-test',
-//   oauth: {
-//     client_id: '15f2b76b369424268fd6',
-//     client_secret: 'a0c16b867fd960b011c074709590a43a87807138',
-//   },
-// })
-// gitment.render('comment')
+import { gitmentConfig } from '@/js/gitmentConfig'
+import Gitment from 'gitment'
+import 'gitment/style/default.css'
 
 export default {
-  template: '#tpl',
   data () {
     return {
+      blogId: null,
       title: '',
       date: '',
       html: '',
@@ -45,8 +34,8 @@ export default {
 
   methods: {
     requestBlog () {
-      var aid = this.$route.params.id
-      getBlog(aid).then(res => {
+      this.blogId = this.$route.params.id
+      getBlog(this.blogId).then(res => {
         if (res.status === 200 && res.data.code === 0) {
           var data = res.data.data
           this.blogimg = data.image
@@ -60,6 +49,17 @@ export default {
           })
         }
       })
+    },
+
+    gitmentRender () {
+      console.log(gitmentConfig)
+      const gitment = new Gitment({
+        id: this.$route.path,
+        owner: gitmentConfig.owner,
+        repo: gitmentConfig.repo,
+        oauth: gitmentConfig.oauth
+      })
+      gitment.render('commentsContainer')
     }
   },
 
@@ -71,9 +71,18 @@ export default {
       this.title = ''
       this.date = ''
       this.requestBlog()
+      this.gitmentRender()
     }
+  },
+  beforeRouteEnter (to, from, next) {
+    window.document.title = 'GXBlog'
+    next(vm => { vm.gitmentRender() })
+  },
+  beforeRouteUpdate (to, from, next) {
+    next()
   }
 }
+
 </script>
 
 <style>
@@ -88,8 +97,6 @@ h1 {
   margin-left: 10px;
 }
 .fixme {
-  /*background: green;*/
-  /*width: 100%;*/
   max-width: 100%;
   margin: 0 auto;
   padding: 15px;
@@ -101,5 +108,11 @@ h1 {
 .blog-main-footer {
   margin-top: 10px;
   text-align: right;
+}
+.gitment-comment-main {
+  background: white;
+}
+.gitment-editor-main {
+  background: white;
 }
 </style>
