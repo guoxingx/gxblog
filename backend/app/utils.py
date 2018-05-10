@@ -19,6 +19,15 @@ def get_w3():
 
 
 def get_node_status(show_balance=False):
+    """
+    获取当前节点状态
+    @return: <dict>:
+        {
+            status: <int> 0-可用，1-同步数据中，2-不可用
+            peer_count: <int> 当前已连接的节点数
+            message: <string>
+        }
+    """
     if current_app.config.get('ETH_MODE') == 'test':
         return {
             'status': 0,
