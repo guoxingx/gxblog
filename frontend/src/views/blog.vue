@@ -26,21 +26,35 @@ export default {
   },
 
   created () {
-    var aid = this.$route.params.id
-    getBlog(aid).then(res => {
-      if (res.data.code === 0) {
-        var data = res.data.data
-        this.blogimg = data.image
-        this.tags = data.tags
-        this.title = data.title
-        this.date = data.created_at
+    this.requestBlog()
+  },
 
-        getHtml(data.path).then(response => {
-          this.html = response.data
-          document.body.className = 'fixme'
-        })
-      }
-    })
+  methods: {
+    requestBlog () {
+      var aid = this.$route.params.id
+      getBlog(aid).then(res => {
+        if (res.status === 200 && res.data.code === 0) {
+          var data = res.data.data
+          this.blogimg = data.image
+          this.tags = data.tags
+          this.title = data.title
+          this.date = data.created_at
+
+          getHtml(data.path).then(response => {
+            this.html = response.data
+            document.body.className = 'fixme'
+          })
+        } else {
+          alert('fuck')
+        }
+      })
+    }
+  },
+
+  watch: {
+    '$route' (to, from) {
+      this.requestBlog()
+    }
   }
 }
 </script>

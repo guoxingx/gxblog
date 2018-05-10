@@ -34,6 +34,8 @@ class BetOnEtherBetList(BaseResource):
         if boe and boe.deleted:
             boe = None
         res = boe.query_bets(address)
+        if not res:
+            abort(404)
         return res
 
     def post(self, id):

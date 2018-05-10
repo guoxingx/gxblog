@@ -21,7 +21,7 @@
         <h2>基于以太坊测试链</h2>
         <account :balance="balance" :account="account" :nodeStatus="nodeStatus"></account>
         <div class="list">
-          <boe-list-cell v-for="boe in boe_list" :key="boe" :boe="boe"></boe-list-cell>
+          <boe-list-cell v-for="boe in boeList" :key="boe" :boe="boe"></boe-list-cell>
         </div>
       </div>
     </el-col>
@@ -142,9 +142,9 @@ export default {
   },
   beforeRouteUpdate (to, from, next) {
     if (to.params.id !== this.boe.id) {
-      for (var i in this.boe_list) {
-        if (this.boe_list[i].id === to.params.id) {
-          this.boe = this.boe_list[i]
+      for (var i in this.boeList) {
+        if (this.boeList[i].id === to.params.id) {
+          this.boe = this.boeList[i]
           this.getBetList()
         }
       }
@@ -154,7 +154,7 @@ export default {
   data () {
     return {
       boes_count: 0,
-      boe_list: [],
+      boeList: [],
       boe: {},
       betList: [],
       visible0: false,
@@ -265,23 +265,25 @@ export default {
       })
     },
 
-    refresh (isRefresh = false) {
+    setBoe (boeList) {
       var bid = this.$route.params.id
+      for (var i in boeList) {
+        if (boeList[i].id === Number(bid)) { this.boe = boeList[i] }
+      }
+      if (!this.boe.id) {
+        this.boe = boeList[0]
+      }
+      this.boes_count = boeList.length
+      this.boeList = boeList
+      this.getBetList()
+    },
+
+    refresh (isRefresh = false) {
       this.refreshNodeStatus()
 
       getBetOnEtherList().then(res => {
         if (res.status === 200 && res.data.code === 0) {
-          var data = res.data.data
-          for (var i in data) {
-            if (data[i].id === Number(bid)) { this.boe = data[i] }
-          }
-          if (!this.boe.id) {
-            this.boe = data[0]
-          }
-          this.boes_count = data.length
-          this.boe_list = data
-          this.getBetList()
-
+          this.setBoe(res.data.data)
           if (isRefresh) {
             this.$message({ message: '刷新成功', type: 'success' })
           }

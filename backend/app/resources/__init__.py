@@ -7,7 +7,7 @@ api_blueprint = Blueprint('api', __name__)
 api = Api(api_blueprint)
 
 
-@api_blueprint.app_errorhandler(Exception)
+@api_blueprint.errorhandler(Exception)
 def internal_server_error(e):
     return jsonify({'code': 500, 'message': 'internal server error'})
 
