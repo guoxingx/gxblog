@@ -5,5 +5,6 @@ data/
 migrations
 tags
 .env
+eth_test/
 **/static/blogs/*
 **/static/images/*
