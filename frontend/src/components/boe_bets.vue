@@ -20,22 +20,6 @@
 
       <el-table :data="betList" style="width: 100%">
 
-<!--     <el-table-column
-      label="姓名"
-      width="180">
-
-      <template slot-scope="scope">
-        <el-button
-          size="mini"
-          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-        <el-button
-          size="mini"
-          type="danger"
-          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-      </template>
-
-    </el-table-column> -->
-
         <el-table-column label="赛果">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.beton===0" :type="boe.result===0 ? 'success' : 'info'">主胜</el-tag>
@@ -57,7 +41,7 @@
 </template>
 
 <script>
-import { betOnEtherWithdraw } from '../requests'
+import { betOnEtherWithdraw } from '@/js/requests'
 
 export default {
   props: ['boe', 'betList', 'account', 'nodeStatus'],

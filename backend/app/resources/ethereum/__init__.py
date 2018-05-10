@@ -14,8 +14,4 @@ w3 = get_w3()
 class EthStatus(BaseResource):
 
     def get(self):
-        return {
-            'code': 0,
-            'data': get_node_status(),
-            'error': ''
-        }
+        return get_node_status()

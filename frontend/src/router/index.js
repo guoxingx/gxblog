@@ -14,28 +14,21 @@ export default new Router({
       path: '/blogs',
       name: 'blogs',
       component: function (resolve) {
-        require(['@/components/blog_list'], resolve)
-      }
-    },
-    {
-      path: '/hello',
-      name: 'HelloWorld',
-      component: function (resolve) {
-        require(['@/components/HelloWorld'], resolve)
+        require(['@/views/blog_list'], resolve)
       }
     },
     {
       path: '/blogs/:id',
       name: 'blog',
       component: function (resolve) {
-        require(['@/components/blog'], resolve)
+        require(['@/views/blog'], resolve)
       }
     },
     {
       path: '/betonether/:id',
       name: 'betonether',
       component: function (resolve) {
-        require(['@/components/betonether'], resolve)
+        require(['@/views/betonether'], resolve)
       }
     }
   ]

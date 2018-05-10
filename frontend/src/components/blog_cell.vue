@@ -1,59 +1,40 @@
 <template>
 
-  <div class="unit">
+  <div class="blog-unit">
     <div>
       <div style="float: left; margin-right: 30px;">
-        <router-link :to="{ name: 'blog', params: { id: unit.id }}">
-          <img :src="unit.image">
+        <!-- <router-link :to="{ name: 'blog', params: { id: blog.id }}"> -->
+        <router-link :to="{ name: 'blog', params: { id: blog.id }}">
+          <img :src="blog.image">
         </router-link>
       </div>
       <div style="text-align: left;">
         <div>
-          <router-link :to="{ name: 'blog', params: { id: unit.id }}">
-            <h3>{{ unit.title }}</h3>
+          <!-- <router-link :to="{ name: 'blog', params: { id: blog.id }}"> -->
+          <router-link :to="{ name: 'blog', params: { id: blog.id }}">
+            <h3>{{ blog.title }}</h3>
           </router-link>
         </div>
         <div style="">
-          <p>{{ unit.summary }}</p>
+          <p>{{ blog.summary }}</p>
         </div>
         <div style="margin-bottom: 10px;">
-          <el-tag class="tag" v-for="tag in unit.tags" :key="tag" type="success">{{ tag }}</el-tag>
+          <el-tag class="tag" v-for="tag in blog.tags" :key="tag" type="success">{{ tag }}</el-tag>
         </div>
       </div>
     </div>
-
-<!--     <el-row>
-      <el-col :xs="0" :sm="8" :md="12" :lg="8" :xl="8">
-        <router-link :to="{ name: 'blog', params: { id: unit.id }}">
-          <img :src="unit.image">
-        </router-link>
-      </el-col>
-      <el-col :xs="24" :sm="16" :md="12" :lg="16" :xl="16" class="unit-text">
-        <el-row>
-          <router-link :to="{ name: 'blog', params: { id: unit.id }}">
-            <h3>{{ unit.title }}</h3>
-          </router-link>
-        </el-row>
-        <el-row>
-          <p>{{ unit.summary }}</p>
-        </el-row>
-        <el-row class="tags">
-          <el-tag class="tag" v-for="tag in unit.tags" :key="tag" type="success">{{ tag }}</el-tag>
-        </el-row>
-      </el-col>
-    </el-row> -->
   </div>
 
 </template>
 
 <script>
 export default {
-  props: ['unit']
+  props: ['blog']
 }
 </script>
 
 <style>
-.unit {
+.blog-unit {
   display: inline-block;
   margin-top: 30px;
   width: 95%;
@@ -64,7 +45,7 @@ export default {
   border-bottom: 0.5px solid #BACCE3;
 }
 
-.unit img {
+.blog-unit img {
   margin: 0 auto;
   max-height: 200px;
   width: 300px;
@@ -73,19 +54,19 @@ export default {
   vertical-align: middle;
 }
 
-.unit .tag {
+.blog-unit .tag {
   margin-bottom: 10px;
   margin-left: 10px;
 }
 
-.unit a {
+.blog-unit a {
   text-decoration: none;
 }
 
-.unit-left {
+.blog-unit-left {
   float: left;
 }
-.unit-text {
+.blog-unit-text {
   text-align: left;
 }
 

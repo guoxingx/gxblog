@@ -29,10 +29,12 @@ def get_node_status(show_balance=False):
         }
     """
     if current_app.config.get('ETH_MODE') == 'test':
+        w3 = get_w3()
         return {
             'status': 0,
             'peer_count': 0,
-            'message': 'private chain'
+            'message': 'private chain',
+            'balance': w3.eth.getBalance(w3.eth.accounts[0])
         }
     balance = None
     status = 0
@@ -172,5 +174,7 @@ def get_blog_files_dir():
 
 
 def save_blog_file(blogfile, filename):
-    save_path = '{}/{}.html'.format(get_blog_files_dir(), filename)
+    if '.html' not in filename:
+        filename = '{}.html'.format(filename)
+    save_path = '{}/{}'.format(get_blog_files_dir(), filename)
     blogfile.save(save_path)

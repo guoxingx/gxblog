@@ -16,14 +16,14 @@ class BetOnEtherList(BaseResource):
         res = BetOnEther.query.filter_by(has_contract=True).filter_by(deleted=False).order_by(BetOnEther.created_at.desc()).all()
         return [b.to_json() for b in res]
 
-    def post(self):
-        form = form_by_json_request(BetOnEtherCreateForm)
-        if form.validate_on_submit():
-            boe = BetOnEther(**form.data)
-            db.session.add(boe)
-            db.session.commit()
-            return boe.to_json()
-        abort(400, form.errors)
+    # def post(self):
+    #     form = form_by_json_request(BetOnEtherCreateForm)
+    #     if form.validate_on_submit():
+    #         boe = BetOnEther(**form.data)
+    #         db.session.add(boe)
+    #         db.session.commit()
+    #         return boe.to_json()
+    #     abort(400, form.errors)
 
 
 class BetOnEtherBetList(BaseResource):
@@ -41,11 +41,7 @@ class BetOnEtherBetList(BaseResource):
         redis = Redis.from_url(current_app.config['REDIS_URL'])
         key = 'BetOnEtherAction:{}'.format(address)
         if redis.get(key):
-            return {
-                'code': 30001,
-                'data': '',
-                'error': 'Operation too frequent'
-            }
+            return 30001, 'Operation too frequent'
         redis.set(key, 1, 20)
 
         beton = request.json.get('beton')
@@ -55,11 +51,7 @@ class BetOnEtherBetList(BaseResource):
         if boe and boe.deleted:
             boe = None
         code, res = boe.bet(beton, amount, address, password)
-        return {
-            'code': code,
-            'data': res,
-            'error': ''
-        }
+        return res
 
 
 class BetOnEtherWithdraw(BaseResource):
@@ -69,11 +61,7 @@ class BetOnEtherWithdraw(BaseResource):
         redis = Redis.from_url(current_app.config['REDIS_URL'])
         key = 'BetOnEtherAction:{}'.format(address)
         if redis.get(key):
-            return {
-                'code': 30001,
-                'data': '',
-                'error': 'Operation too frequent'
-            }
+            return 30001, 'Operation too frequent'
         redis.set(key, 1, 20)
 
         password = request.json.get('password')

@@ -7,6 +7,8 @@ from flask_restful import Resource
 from flask_login import current_user
 from werkzeug.datastructures import MultiDict
 
+from ..src.flask_rest_response import json_required, response
+
 
 def login_required(func):
     @functools.wraps(func)
@@ -17,21 +19,21 @@ def login_required(func):
     return wrapper
 
 
-def json_required():
-    """
-    response 400 if request not in json format.
-    """
-    def wrapper(func):
-        @functools.wraps(func)
-        def decorator(*args, **kw):
-            if request.method not in ['GET', 'DELETE']:
-                if not request.json:
-                    if 'application/json' not in request.headers.get('content-type'):
-                        abort(400)
-            response = func(*args, **kw)
-            return response
-        return decorator
-    return wrapper
+# def json_required():
+#     """
+#     response 400 if request not in json format.
+#     """
+#     def wrapper(func):
+#         @functools.wraps(func)
+#         def decorator(*args, **kw):
+#             if request.method not in ['GET', 'DELETE']:
+#                 if not request.json:
+#                     if 'application/json' not in request.headers.get('content-type'):
+#                         abort(400)
+#             response = func(*args, **kw)
+#             return response
+#         return decorator
+#     return wrapper
 
 
 def form_by_json_request(form_class):
@@ -55,7 +57,7 @@ class BaseResourceMeta(MethodViewType):
         decorator ahead in the list will be execute first.
         """
         c_decorators = dct.get('decorators', [])
-        decorators = [json_required()]
+        decorators = [json_required(), response()]
         decorators.extend(c_decorators)
         dct['decorators'] = decorators
         return super(BaseResourceMeta, cls).__new__(cls, name, bases, dct)

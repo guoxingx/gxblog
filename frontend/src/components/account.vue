@@ -54,8 +54,8 @@
 </template>
 
 <script>
-import { setAccount, logoutAccount } from '../account.js'
-import { getBalance, registerAccount, requestTestEther } from '../requests.js'
+import { setAccount, logoutAccount } from '@/js/account.js'
+import { getBalance, registerAccount, requestTestEther } from '@/js/requests.js'
 
 export default {
   props: ['balance', 'account', 'nodeStatus'],
@@ -73,9 +73,8 @@ export default {
       this.account = this.address
       setAccount(this.address)
       getBalance(this.address).then(res => {
-        console.log(res)
-        if (res.status === 200) {
-          this.balance = Math.round(res.data / 1000000000000000)
+        if (res.status === 200 && res.data.code === 0) {
+          this.balance = Math.round(res.data.data / 1000000000000000)
         }
         this.visible2 = false
         this.visible4 = false
@@ -89,16 +88,19 @@ export default {
     },
     register () {
       registerAccount(this.password).then(res => {
-        this.account = res.data
-        setAccount(res.data)
-        this.visible3 = false
-        this.balance = 0
+        if (res.status === 200 && res.data.code === 0) {
+          var data = res.data.data
+          this.account = data
+          setAccount(data)
+          this.visible3 = false
+          this.balance = 0
+        }
       })
     },
     requestEth () {
       if (this.nodeStatus === 0) {
         requestTestEther(this.account).then(res => {
-          if (res.data.amount) {
+          if (res.data.amount || res.data.code === 0) {
             this.$message({
               message: '请求成功！等交易写入区块才能到账。自行刷新页面:)',
               showClose: true,
@@ -106,9 +108,8 @@ export default {
               duration: 30000
             })
           } else {
-            console.log(res.data)
             this.$message({
-              message: res.data.message,
+              message: res.data.message || res.data.data,
               showClose: true,
               type: 'warning'
             })

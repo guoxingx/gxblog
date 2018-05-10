@@ -29,17 +29,15 @@ class Balance(BaseResource):
 class TestEtherCoin(BaseResource):
 
     def post(self):
+        if current_app.config.get('ETH_MODE') != 'test':
+            abort(404)
         account = to_checked_address(request.json.get('address'))
 
         redis = Redis.from_url(current_app.config['REDIS_URL'])
         key = 'TestEtherCoin:{}'.format(account)
         last = redis.get(key)
         if last:
-            return {
-                'code': 20001,
-                'data': '',
-                'error': 'you are greedy.'
-            }
+            return 20001, 'you are greedy.'
         redis.set(key, 1, 300)
 
         base = w3.eth.accounts[0]
@@ -49,10 +47,4 @@ class TestEtherCoin(BaseResource):
             'to': account,
             'value': w3.toWei(1, 'ether')
         })
-        return {
-            'code': 0,
-            'data': {
-                'transaction': w3.toHex(res)
-            },
-            'error': ''
-        }
+        return {'transaction': w3.toHex(res)}
