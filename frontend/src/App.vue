@@ -5,14 +5,14 @@
 <template>
   <div id="app">
     <!-- <div class="limited-nav"> -->
-      <el-menu class="el-menu-demo" mode="horizontal" @select="handleSelect">
+      <el-menu mode="horizontal" @select="handleSelect" class="sometimesnaive">
         <el-menu-item index="1" @click="toblogs()">blogs</el-menu-item>
         <el-menu-item index="2" @click="toboe()">betonether</el-menu-item>
         <el-menu-item index="3" @click="togithub()">my github</el-menu-item>
       </el-menu>
     <!-- </div> -->
 
-    <div class="main">
+    <div class="main" style="margin-top: 60px;">
       <!-- <keep-alive> -->
         <router-view/>
       <!-- </keep-alive> -->
@@ -64,5 +64,13 @@ body {
   min-width: 200px;
   max-width: 760px;
   margin: 0 auto;
+}
+.sometimesnaive {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  margin-top: 10px;
+  margin-right: 10px;
+  z-index: 1234;
 }
 </style>

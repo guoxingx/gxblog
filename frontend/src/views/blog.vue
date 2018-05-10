@@ -53,6 +53,11 @@ export default {
 
   watch: {
     '$route' (to, from) {
+      this.html = ''
+      this.blogimg = ''
+      this.tags = []
+      this.title = ''
+      this.date = ''
       this.requestBlog()
     }
   }
