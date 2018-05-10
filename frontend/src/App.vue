@@ -1,7 +1,9 @@
 
+<head>
+  <title>Replace Me</title>
+</head>
 <template>
   <div id="app">
-
     <!-- <div class="limited-nav"> -->
       <el-menu class="el-menu-demo" mode="horizontal" @select="handleSelect">
         <el-menu-item index="1" @click="toblogs()">blogs</el-menu-item>

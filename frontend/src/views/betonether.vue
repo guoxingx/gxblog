@@ -1,4 +1,6 @@
 <template>
+  <div>
+  <vue-headful title="GXBlog - BetOnEtherBet"/>
   <el-row>
     <el-col :xs="24" :sm="24" :md="24" :lg="5" :xl="8" class="right" style="float: right">
       <div class="status">
@@ -123,8 +125,8 @@
         <p>因为作者很懒 ...请好好利用"刷新"按钮。<strong>暂时的</strong></p>
       </el-col>
     </el-col>
-
   </el-row>
+  </div>
 </template>
 
 <script>

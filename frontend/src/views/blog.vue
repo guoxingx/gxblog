@@ -1,6 +1,7 @@
 
 <template>
   <div class="blog-main">
+    <vue-headful title="GXBlog"/>
     <div v-html="html" class="html" id="html"></div>
     <div class="blog-main-footer">
       <el-tag class="tag" v-for="tag in tags" :key="tag" type="success">{{ tag }}</el-tag>
