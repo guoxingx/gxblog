@@ -9,7 +9,7 @@ from .base import BaseModel
 from .. import db
 # from ..src.eth import ManagerConnector, IdentityConnector, Connector
 # from web3.auto import w3
-from web3.exceptions import BadFunctionCallOutput
+from web3.exceptions import BadFunctionCallOutput, MismatchedABI
 from ..utils import get_static_dir, to_checked_address, get_w3
 
 
@@ -118,6 +118,8 @@ class BetOnEther(BaseModel):
                 self.bet_count = contract.functions.betCount().call()
             except AttributeError as e:
                 pass
+            except MismatchedABI:
+                pass
 
             self.ended = contract.functions.ended().call()
             if self.ended:
@@ -150,7 +152,9 @@ class BetOnEther(BaseModel):
             # 向下兼容
             try:
                 self.bet_count = contract.functions.betCount().call()
-            except AttributeError as e:
+            except AttributeError:
+                pass
+            except MismatchedABI:
                 pass
 
             self.ended = contract.functions.ended().call()
