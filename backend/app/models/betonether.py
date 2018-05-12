@@ -53,6 +53,7 @@ class BetOnEther(BaseModel):
     lose_bonus = db.Column(db.Integer())
     ended = db.Column(db.Boolean())
     result = db.Column(db.Integer())
+    bet_count = db.Column(db.Integer())
 
     deleted = db.Column(db.Boolean(), default=False)
 
@@ -101,6 +102,7 @@ class BetOnEther(BaseModel):
             self.win_odds = contract.functions.oddss(0).call()
             self.draw_odds = contract.functions.oddss(1).call()
             self.lose_odds = contract.functions.oddss(2).call()
+            self.bet_count = contract.functions.betCount.call()
 
             self.ended = contract.functions.ended().call()
             if self.ended:
@@ -124,6 +126,7 @@ class BetOnEther(BaseModel):
             self.win_odds = contract.functions.oddss(0).call()
             self.draw_odds = contract.functions.oddss(1).call()
             self.lose_odds = contract.functions.oddss(2).call()
+            self.bet_count = contract.functions.betCount.call()
             self.pool = int(contract.functions.pool().call() / (10 ** 15))
             self.balance = int(contract.functions.balance().call() / (10 ** 15))
             self.win_bonus = int(contract.functions.bonuss(0).call() / (10 ** 15))
@@ -261,6 +264,7 @@ class BetOnEther(BaseModel):
 
     def withdraw(self, account, password):
         """
+        提现
         """
         account = to_checked_address(account)
         w3.personal.unlockAccount(account, password)
@@ -269,6 +273,7 @@ class BetOnEther(BaseModel):
 
     def clear(self, password=None):
         """
+        庄家提款
         """
         password = password or current_app.config.get('ETH_COINBASE_PASSWORD')
         w3.personal.unlockAccount(self.host, password)
