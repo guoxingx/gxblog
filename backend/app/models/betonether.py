@@ -327,7 +327,9 @@ class BetOnEther(BaseModel):
             try:
                 player = self.contract.functions.players(i).call()
                 res.append(player)
-            except AttributeError as e:
+            except AttributeError:
+                return None
+            except MismatchedABI:
                 return None
             except BadFunctionCallOutput:
                 break
