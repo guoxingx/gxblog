@@ -53,7 +53,7 @@ class BetOnEtherBetList(BaseResource):
         if boe and boe.deleted:
             boe = None
         code, res = boe.bet(beton, amount, address, password)
-        return res
+        return code, res
 
 
 class BetOnEtherWithdraw(BaseResource):

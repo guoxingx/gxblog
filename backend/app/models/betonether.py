@@ -14,8 +14,8 @@ from ..utils import get_static_dir, to_checked_address, get_w3
 
 
 w3 = get_w3()
-AbiFile = 'betonether_abi.json'
-ByteCodeFile = 'betonether_bytecode.json'
+AbiFile = 'betonether_abi'
+ByteCodeFile = 'betonether_bytecode'
 
 
 class BetOnEther(BaseModel):
@@ -33,9 +33,8 @@ class BetOnEther(BaseModel):
     opening_time = db.Column(db.TIMESTAMP(timezone=True))
     league = db.Column(db.String(63))
     round = db.Column(db.String(63))
-    win_odds = db.Column(db.Integer())
-    draw_odds = db.Column(db.Integer())
-    lose_odds = db.Column(db.Integer())
+    abifile = db.Column(db.String(63), default='betonether_abi.0.20.json')
+    bytecodefile = db.Column(db.String(63), default='betonether_bytecode.0.20.json')
 
     # 合约状态
     has_contract = db.Column(db.Boolean())
@@ -44,6 +43,9 @@ class BetOnEther(BaseModel):
     contract_status = db.Column(db.Integer())
 
     # 合约信息
+    win_odds = db.Column(db.Integer())
+    draw_odds = db.Column(db.Integer())
+    lose_odds = db.Column(db.Integer())
     host = db.Column(db.String(63))
     pool = db.Column(db.Integer())
     earnest_money = db.Column(db.Integer())
@@ -59,7 +61,11 @@ class BetOnEther(BaseModel):
 
     @property
     def bytecode_text(self):
-        with open(get_static_dir('contracts/{}'.format(ByteCodeFile))) as f:
+        if not self.bytecodefile:
+            self.bytecodefile = 'betonether_bytecode.0.10.json'
+            db.session.add(self)
+            db.session.commit()
+        with open(get_static_dir('contracts/{}'.format(self.bytecodefile))) as f:
             res = f.read()
             res = json.loads(res)
             res = res.get('object')
@@ -67,7 +73,11 @@ class BetOnEther(BaseModel):
 
     @property
     def abi_text(self):
-        with open(get_static_dir('contracts/{}'.format(AbiFile))) as f:
+        if not self.abifile:
+            self.abifile = 'betonether_abi.0.10.json'
+            db.session.add(self)
+            db.session.commit()
+        with open(get_static_dir('contracts/{}'.format(self.abifile))) as f:
             return f.read()
 
     @property
@@ -102,7 +112,12 @@ class BetOnEther(BaseModel):
             self.win_odds = contract.functions.oddss(0).call()
             self.draw_odds = contract.functions.oddss(1).call()
             self.lose_odds = contract.functions.oddss(2).call()
-            self.bet_count = contract.functions.betCount.call()
+
+            # 向下兼容
+            try:
+                self.bet_count = contract.functions.betCount().call()
+            except AttributeError as e:
+                pass
 
             self.ended = contract.functions.ended().call()
             if self.ended:
@@ -126,12 +141,17 @@ class BetOnEther(BaseModel):
             self.win_odds = contract.functions.oddss(0).call()
             self.draw_odds = contract.functions.oddss(1).call()
             self.lose_odds = contract.functions.oddss(2).call()
-            self.bet_count = contract.functions.betCount.call()
             self.pool = int(contract.functions.pool().call() / (10 ** 15))
             self.balance = int(contract.functions.balance().call() / (10 ** 15))
             self.win_bonus = int(contract.functions.bonuss(0).call() / (10 ** 15))
             self.draw_bonus = int(contract.functions.bonuss(1).call() / (10 ** 15))
             self.lose_bonus = int(contract.functions.bonuss(2).call() / (10 ** 15))
+
+            # 向下兼容
+            try:
+                self.bet_count = contract.functions.betCount().call()
+            except AttributeError as e:
+                pass
 
             self.ended = contract.functions.ended().call()
             if self.ended:
@@ -220,7 +240,7 @@ class BetOnEther(BaseModel):
             return 1, None
         try:
             gas = self.contract.functions.bet(beton).estimateGas(params)
-        except ValueError:
+        except ValueError as e:
             return 2, None
         res = self.contract.functions.bet(beton).transact({
             'from': to_checked_address(account),
@@ -280,15 +300,31 @@ class BetOnEther(BaseModel):
         res = self.contract.functions.clear().transact({'from': self.host})
         return w3.toHex(res)
 
-    def query_bets(self, account):
+    def query_bets(self, account, index=0, count=10):
         """
+        获取某个玩家的下注信息
         """
         res = []
         account = to_checked_address(account)
-        for i in range(10):
+        for i in range(index, index + count):
             try:
                 bet = self.contract.functions.bets(account, i).call()
                 res.append(bet)
+            except BadFunctionCallOutput:
+                break
+        return res
+
+    def query_players(self, index=0, count=10):
+        """
+        获取参与的玩家地址
+        """
+        res = []
+        for i in range(index, index + count):
+            try:
+                player = self.contract.functions.players(i).call()
+                res.append(player)
+            except AttributeError as e:
+                return None
             except BadFunctionCallOutput:
                 break
         return res

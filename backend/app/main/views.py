@@ -93,7 +93,16 @@ def alter_contract(boe):
 @roles_required('admin')
 def betonether():
     _id = request.args.get('id')
-    qa = request.args.get('q')
+
+    # query account, index, count
+    qa = request.args.get('qa')
+    qai = request.args.get('qai', 0)
+    qac = request.args.get('qac', 10)
+
+    # query player, index, count
+    qpi = request.args.get('qpi', 0)
+    qpc = request.args.get('qpc', 10)
+
     boe = BetOnEther.query.get(_id) if _id else None
     if boe and boe.deleted:
         boe = None
@@ -153,9 +162,16 @@ def betonether():
 
     bet_list = None
     if boe and boe.contract_status == 2 and qa:
-        bet_list = boe.query_bets(qa)
+        bet_list = boe.query_bets(qa, qai, qac)
 
-    return render('betonether.html', boe=boe, boe_list=boe_list, bet_list=bet_list, node_status_dict=node_status_dict)
+    player_list = None
+    if boe and boe.contract_status == 2:
+        player_list = boe.query_players(qpi, qpc)
+
+    return render('betonether.html',
+                  boe=boe, boe_list=boe_list,
+                  bet_list=bet_list, player_list=player_list,
+                  node_status_dict=node_status_dict)
 
 
 @main.route('/blogs', methods=['GET', 'POST'])
