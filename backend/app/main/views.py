@@ -64,6 +64,30 @@ def index():
     return render('index.html')
 
 
+def alter_contract(boe):
+    """
+    修改合约
+    1. 添加保证金
+    2. 修改赔率
+    """
+    alter_odds = False
+    input_em = False
+    odds_names = ('win_odds', 'draw_odds', 'lose_odds')
+
+    for name in odds_names:
+        if int(request.form.get(name)) != getattr(boe, name):
+            alter_odds = True
+
+    if int(request.form.get('earnest_money')) > boe.earnest_money:
+        input_em = True
+
+    if alter_odds:
+        boe.alterOdds(*[int(request.form.get(name)) for name in odds_names])
+
+    if input_em:
+        boe.inputEarnestMoney(int(request.form.get('earnest_money')) - boe.earnest_money)
+
+
 @main.route('/betonether', methods=['GET', 'POST'])
 @login_required
 @roles_required('admin')
@@ -82,6 +106,9 @@ def betonether():
                 res = boe.deploy(**form.data)
                 if res:
                     flash(res)
+
+        if action == 'alter':
+            alter_contract(boe)
 
         if action == 'txhash':
             boe.load_contract_by_tx_hash()
@@ -122,7 +149,7 @@ def betonether():
 
     boe_list = BetOnEther.query.filter_by(deleted=False).order_by(BetOnEther.created_at.desc()).all()
     if not node_status and boe and boe.has_contract:
-        boe.sync_data()
+        boe.sync_data_all()
 
     bet_list = None
     if boe and boe.contract_status == 2 and qa:

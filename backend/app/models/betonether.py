@@ -37,11 +37,13 @@ class BetOnEther(BaseModel):
     draw_odds = db.Column(db.Integer())
     lose_odds = db.Column(db.Integer())
 
+    # 合约状态
     has_contract = db.Column(db.Boolean())
     contract_address = db.Column(db.String(63))
     tx_hash = db.Column(db.String(127))
     contract_status = db.Column(db.Integer())
 
+    # 合约信息
     host = db.Column(db.String(63))
     pool = db.Column(db.Integer())
     earnest_money = db.Column(db.Integer())
@@ -85,19 +87,49 @@ class BetOnEther(BaseModel):
         """
         从合同加载参数并保存到数据库
         """
+        pass
+
+    def sync_data_base(self):
+        """
+        从合同加载部分参数并保存到数据库
+        """
         try:
             contract = self.contract
 
             self.host = contract.functions.host().call()
-            # self.pool = int(contract.functions.pool().call() / (10 ** 15))
             self.earnest_money = int(contract.functions.earnestMoney().call() / (10 ** 15))
-            # self.balance = int(contract.functions.balance().call() / (10 ** 15))
             self.win_odds = contract.functions.oddss(0).call()
             self.draw_odds = contract.functions.oddss(1).call()
             self.lose_odds = contract.functions.oddss(2).call()
-            # self.win_bonus = int(contract.functions.bonuss(0).call() / (10 ** 15))
-            # self.draw_bonus = int(contract.functions.bonuss(1).call() / (10 ** 15))
-            # self.lose_bonus = int(contract.functions.bonuss(2).call() / (10 ** 15))
+
+            self.ended = contract.functions.ended().call()
+            if self.ended:
+                self.result = contract.functions.game().call()[3]
+            self.contract_status = 2
+        except BadFunctionCallOutput as e:
+            self.contract_status = 3
+        finally:
+            db.session.add(self)
+            db.session.commit()
+
+    def sync_data_all(self):
+        """
+        从合同加载全部参数并保存到数据库
+        """
+        try:
+            contract = self.contract
+
+            self.host = contract.functions.host().call()
+            self.earnest_money = int(contract.functions.earnestMoney().call() / (10 ** 15))
+            self.win_odds = contract.functions.oddss(0).call()
+            self.draw_odds = contract.functions.oddss(1).call()
+            self.lose_odds = contract.functions.oddss(2).call()
+            self.pool = int(contract.functions.pool().call() / (10 ** 15))
+            self.balance = int(contract.functions.balance().call() / (10 ** 15))
+            self.win_bonus = int(contract.functions.bonuss(0).call() / (10 ** 15))
+            self.draw_bonus = int(contract.functions.bonuss(1).call() / (10 ** 15))
+            self.lose_bonus = int(contract.functions.bonuss(2).call() / (10 ** 15))
+
             self.ended = contract.functions.ended().call()
             if self.ended:
                 self.result = contract.functions.game().call()[3]
@@ -195,13 +227,31 @@ class BetOnEther(BaseModel):
         res = w3.toHex(res)
         return 0, res
 
-    def alterOdds(self, win, draw, lose):
+    def alterOdds(self, win, draw, lose, password=None):
         """
+        修改赔率
         """
-        pass
+        password = password or current_app.config.get('ETH_COINBASE_PASSWORD')
+        w3.personal.unlockAccount(self.host, password)
+        gas = self.contract.functions.alterOdds(win, draw, lose).estimateGas({'from': self.host})
+        res = self.contract.functions.alterOdds(win, draw, lose).transact({'from': self.host, 'gas': gas})
+        return w3.toHex(res)
+
+    def inputEarnestMoney(self, amount, password=None):
+        """
+        增加保证金
+        """
+        params = {'from': self.host, 'value': w3.toWei(amount, 'finney')}
+        password = password or current_app.config.get('ETH_COINBASE_PASSWORD')
+        w3.personal.unlockAccount(self.host, password)
+        gas = self.contract.functions.inputEarnestMoney().estimateGas(params)
+        params['gas'] = gas
+        res = self.contract.functions.inputEarnestMoney().transact(params)
+        return w3.toHex(res)
 
     def confirm(self, result, password=None):
         """
+        输入结果
         """
         password = password or current_app.config.get('ETH_COINBASE_PASSWORD')
         w3.personal.unlockAccount(self.host, password)
