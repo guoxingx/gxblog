@@ -1,5 +1,5 @@
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, current_app
 from flask_restful import Api
 
 
@@ -9,6 +9,7 @@ api = Api(api_blueprint)
 
 @api_blueprint.errorhandler(Exception)
 def internal_server_error(e):
+    current_app.logger.exception(e)
     return jsonify({'code': 500, 'message': 'internal server error'})
 
 

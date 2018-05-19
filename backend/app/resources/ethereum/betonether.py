@@ -13,20 +13,23 @@ class BetOnEtherList(BaseResource):
     # decorators = [login_required]
 
     def get(self):
-        index = request.args.get('index', 0)
-        count = request.args.get('count', 3)
+        try:
+            index = int(request.args.get('index'))
+        except Exception as e:
+            index = 0
+        try:
+            count = int(request.args.get('count'))
+        except Exception as e:
+            count = 3
         query = BetOnEther.query.filter_by(has_contract=True).filter_by(deleted=False)
+        total = query.count()
         res = query.order_by(BetOnEther.created_at.desc()).limit(count).offset(index).all()
-        return [b.to_json() for b in res]
-
-    # def post(self):
-    #     form = form_by_json_request(BetOnEtherCreateForm)
-    #     if form.validate_on_submit():
-    #         boe = BetOnEther(**form.data)
-    #         db.session.add(boe)
-    #         db.session.commit()
-    #         return boe.to_json()
-    #     abort(400, form.errors)
+        return {
+            'count': count,
+            'index': index,
+            'total': total,
+            'data': [b.to_json() for b in res]
+        }
 
 
 class BetOnEtherBetList(BaseResource):
