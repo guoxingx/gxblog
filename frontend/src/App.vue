@@ -32,7 +32,7 @@ export default {
       this.$router.push({ name: 'index' })
     },
     toboe () {
-      this.$router.push({ name: 'betonether', params: { id: 0 } })
+      this.$router.push({ name: 'betonether', params: { page: 1 } })
     },
     togithub () {
       window.location.href = 'https://github.com/guoxingx'
