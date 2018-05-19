@@ -13,7 +13,10 @@ class BetOnEtherList(BaseResource):
     # decorators = [login_required]
 
     def get(self):
-        res = BetOnEther.query.filter_by(has_contract=True).filter_by(deleted=False).order_by(BetOnEther.created_at.desc()).all()
+        index = request.args.get('index', 0)
+        count = request.args.get('count', 3)
+        query = BetOnEther.query.filter_by(has_contract=True).filter_by(deleted=False)
+        res = query.order_by(BetOnEther.created_at.desc()).limit(count).offset(index).all()
         return [b.to_json() for b in res]
 
     # def post(self):

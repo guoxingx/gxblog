@@ -103,6 +103,9 @@ def betonether():
     qpi = request.args.get('qpi', 0)
     qpc = request.args.get('qpc', 10)
 
+    # sync data
+    sync_data = request.args.get('sync', 0)
+
     boe = BetOnEther.query.get(_id) if _id else None
     if boe and boe.deleted:
         boe = None
@@ -158,7 +161,8 @@ def betonether():
 
     boe_list = BetOnEther.query.filter_by(deleted=False).order_by(BetOnEther.created_at.desc()).all()
     if not node_status and boe and boe.has_contract:
-        boe.sync_data_all()
+        if sync_data:
+            boe.sync_data_all()
 
     bet_list = None
     if boe and boe.contract_status == 2 and qa:
