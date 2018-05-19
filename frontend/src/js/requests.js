@@ -36,8 +36,8 @@ export function getHtml (url) {
   return get(HOST + url)
 }
 
-export function getBetOnEtherList () {
-  return get(HOST + '/api/eth/betonethers')
+export function getBetOnEtherList (index = 0) {
+  return get(HOST + '/api/eth/betonethers?index=' + index)
 }
 
 export function getBetOnEther (id) {

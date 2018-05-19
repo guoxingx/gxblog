@@ -20,8 +20,19 @@
         <h2>基于以太坊测试链</h2>
         <account :balance="balance" :account="account" :nodeStatus="nodeStatus"></account>
         <div class="list">
-          <boe-list-cell v-for="boe in boeList" :key="boe" :boe="boe"></boe-list-cell>
+          <boe-list-cell
+            v-for="boe in boeList" :key="boe" :boe="boe"
+            v-on:click.native="chooseBoe(boe)">
+          </boe-list-cell>
         </div>
+
+        <div class="block">
+          <el-pagination small layout="prev, pager, next" page-size="3"
+          :total="boeTotalCount"
+          :current-page="boeCurrentPage"
+          @current-change="changePage"></el-pagination>
+        </div>
+
       </div>
     </el-col>
 
@@ -152,7 +163,6 @@ export default {
   },
   data () {
     return {
-      boes_count: 0,
       boeList: [],
       boe: {},
       betList: [],
@@ -163,13 +173,17 @@ export default {
       account: getAccount(),
       nodeStatus: -1,
       nodeStatusString: 'unknown',
-      peerCount: 0
+      peerCount: 0,
+      boeCurrentPage: this.$route.params.page,
+      boeTotalCount: 0
     }
   },
   created () {
     this.refresh()
   },
   methods: {
+    chooseBoe (boe) { this.boe = boe },
+
     bet (beton) {
       if (this.nodeStatus === 0) {
         if (this.betCheck()) {
@@ -264,28 +278,16 @@ export default {
       })
     },
 
-    setBoe (boeList) {
-      var bid = this.$route.params.id
-      for (var i in boeList) {
-        if (boeList[i].id === Number(bid)) { this.boe = boeList[i] }
-      }
-      if (!this.boe.id) {
-        this.boe = boeList[0]
-      }
-      this.boes_count = boeList.length
-      this.boeList = boeList
-      this.getBetList()
-    },
-
     refresh (isRefresh = false) {
       this.refreshNodeStatus()
 
-      getBetOnEtherList().then(res => {
+      getBetOnEtherList((this.$route.params.page - 1) * 3).then(res => {
         if (res.status === 200 && res.data.code === 0) {
-          this.setBoe(res.data.data)
-          if (isRefresh) {
-            this.$message({ message: '刷新成功', type: 'success' })
-          }
+          this.boeTotalCount = res.data.data.total
+          this.boeList = res.data.data.data
+          if (!this.boe.id) { this.boe = this.boeList[0] }
+          this.getBetList()
+          if (isRefresh) { this.$message({ message: '刷新成功', type: 'success' }) }
         }
       })
 
@@ -297,8 +299,21 @@ export default {
           }
         })
       }
+    },
+
+    changePage (val) {
+      this.$router.push({ name: 'betonether', params: { page: val } })
+    }
+
+  },
+
+  watch: {
+    '$route' (to, from) {
+      this.boe = {}
+      this.refresh()
     }
   },
+
   beforeRouteEnter (to, from, next) {
     window.document.title = 'GXBlog - BetOnEther'
     next(vm => {})

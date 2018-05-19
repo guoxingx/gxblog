@@ -25,7 +25,7 @@ export default new Router({
       }
     },
     {
-      path: '/betonether/:id',
+      path: '/betonether/:page',
       name: 'betonether',
       component: function (resolve) {
         require(['@/views/betonether'], resolve)
