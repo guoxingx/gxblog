@@ -123,7 +123,9 @@ def betonether():
             alter_contract(boe)
 
         if action == 'txhash':
-            boe.load_contract_by_tx_hash()
+            res = boe.load_contract_by_tx_hash()
+            if not res:
+                boe.sync_data_all()
 
         elif action == 'load':
             address = request.form.get('address')
@@ -155,6 +157,10 @@ def betonether():
         elif action == 'clear':
             password = request.form.get('password')
             boe.clear(password)
+
+        elif action == 'syncContract':
+            if boe:
+                boe.sync_data_all()
 
     node_status_dict = get_node_status(True)
     node_status = node_status_dict.get('status')

@@ -152,9 +152,9 @@ class BetOnEther(BaseModel):
             # 向下兼容
             try:
                 self.bet_count = contract.functions.betCount().call()
-            except AttributeError:
+            except AttributeError as e:
                 pass
-            except MismatchedABI:
+            except MismatchedABI as e:
                 pass
 
             self.ended = contract.functions.ended().call()

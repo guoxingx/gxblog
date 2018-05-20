@@ -132,11 +132,15 @@
                 <button class="btn btn-primary btn-lg btn-block mb-3" type="submit">Load From Tx Hash</button>
             </form>
             {% else %}
-            <form class="form-submit" method="POST" action="">
-                <h2>Contract Info</h2>
-                <hr>
-                <button class="btn btn-success btn-lg btn-block mb-3" type="submit">Sync Contract Data</button>
+            <h2>Contract Info</h2>
+            <hr>
 
+            <form class="form-submit" method="POST" action="">
+                <input name="action" value="syncContract" hidden>
+                <button class="btn btn-success btn-lg btn-block mb-3" role="button">Sync Contract Data</button>
+            </form>
+
+            <form class="form-submit" method="POST" action="">
                 <div class="row mb-3">
                     <div class="col-sm-12">
                         <label>Address</label>
