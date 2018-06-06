@@ -4,7 +4,7 @@ import os
 from app import create_app
 from app import db
 from flask_script import Manager
-from flask_script import Shell, Server
+from flask_script import Shell
 from flask_migrate import Migrate, MigrateCommand
 
 
