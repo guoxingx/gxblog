@@ -30,9 +30,6 @@ def get_w3():
     return w3
 
 
-w3 = get_w3()
-
-
 async def request_test_ether(account, loop):
     url = URL.format(account)
     future = loop.run_in_executor(None, requests.get, url)
@@ -59,6 +56,7 @@ def test_ether_request_pool(counts):
 
 async def create_account(data):
     password = _generate_password()
+    w3 = get_w3()
     account = w3.personal.newAccount(password)
     # _save_account_password(account, password)
     data[account] = password
@@ -97,9 +95,11 @@ def transact_to_coinbase(counts, value):
     accounts = load_accounts(counts)
     for account, password in accounts.items():
         try:
+            w3 = get_w3()
             w3.personal.unlockAccount(account, password)
             resp = w3.eth.sendTransaction({'from': account, "to": w3.eth.accounts[0], "value": value * 10 ** 15})
             print(w3.toHex(resp))
+            del w3
         except Exception as e:
             print(e)
 
@@ -172,6 +172,7 @@ def run_cli():
         for account, password in load_accounts(args.n).items():
             print(account, password)
     elif args.mode == 'transact':
+        print("trasact could be unbearable slow cause only one account will be unlocked at one time till the memory released.")
         transact_to_coinbase(args.n, args.v)
     else:
         parser.print_help()
