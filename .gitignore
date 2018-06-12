@@ -8,3 +8,4 @@ tags
 eth_test/
 **/static/blogs/*
 **/static/images/*
+data_grab*
