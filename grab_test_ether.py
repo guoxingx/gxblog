@@ -154,6 +154,8 @@ def run_cli():
                         help='How much finney to send.')
     parser.add_argument('--rpcurl', type=str,
                         help='Eth rpc connect url. default as http://localhost:8545')
+    parser.add_argument('--remote', type=str,
+                        help='If eth node run in remote server.')
 
     args = parser.parse_args()
 
@@ -187,8 +189,10 @@ def run_cli():
             test_ether_request_pool(args.n)
 
         def transact_to_coinbase_schedule():
-            remote = 'root@95.163.201.173:29744'
-            transact_to_coinbase(args.n, args.v, remote)
+            if args.remote:
+                transact_to_coinbase(args.n, args.v, args.remote)
+            else:
+                transact_to_coinbase(args.n, args.v)
 
         sched = BlockingScheduler(daemon=True)
         sched.add_job(request_test_ether_schedule, 'interval', hours=13)
