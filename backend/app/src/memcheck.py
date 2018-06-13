@@ -76,5 +76,5 @@ def get_integer_value(info, key):
 
 
 if __name__ == "__main__":
-    REMOTE = 'root@95.163.201.173:29744'
+    REMOTE = 'root@11.222.33.4:5000'
     print(get_used_memory(remote_addr=REMOTE))

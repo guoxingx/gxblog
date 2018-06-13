@@ -15,7 +15,7 @@ CONFIG = {}
 
 
 def get_w3():
-    return Web3(HTTPProvider(config_value('ETH_RPC_URL'), request_kwargs={'timeout': 5}))
+    return Web3(HTTPProvider(config_value('ETH_RPC_URL'), request_kwargs={'timeout': 10}))
 
 
 def get_node_status(show_balance=False):

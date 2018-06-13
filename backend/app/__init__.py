@@ -34,10 +34,9 @@ def create_app(config_name):
     main_blueprint.url_prefix = '/admin'
     app.register_blueprint(main_blueprint)
 
+    from apscheduler.schedulers.background import BackgroundScheduler
+    from .utils import auto_mine
     if app.config.get('ETH_MODE') == 'test':
-        from apscheduler.schedulers.background import BackgroundScheduler
-        from .utils import auto_mine
-
         def sensor():
             auto_mine()
 

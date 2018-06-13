@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 import os
 import enum
@@ -8,6 +9,7 @@ import argparse
 
 import requests
 from web3 import Web3, HTTPProvider
+from apscheduler.schedulers.blocking import BlockingScheduler
 
 
 class RequestStrategies(enum.Enum):
@@ -21,12 +23,12 @@ URL = 'http://faucet.ropsten.be:3001/donate/{}'
 PORT = 3001
 STRATEGY = RequestStrategies.Null
 DATADIR = 'data_grab_test_ether'
-REMOTE = 'root@95.163.201.173:29744'
+ETH_RPC_URL = None
 
 
 def get_w3():
-    if os.environ.get('ETH_RPC_URL'):
-        return Web3(HTTPProvider(os.environ.get('ETH_RPC_URL'), request_kwargs={'timeout': 10}))
+    if ETH_RPC_URL:
+        return Web3(HTTPProvider(ETH_RPC_URL, request_kwargs={'timeout': 10}))
     from web3.auto import w3
     return w3
 
@@ -36,12 +38,6 @@ async def request_test_ether(account, loop):
     future = loop.run_in_executor(None, requests.get, url)
     response = await future
     print(response.text)
-
-    # resp = requests.get(URL.format(account)).text()
-    # return resp
-    # print('{} {}'.format(account, threading.currentThread()))
-    # await asyncio.sleep(1)
-    # print('{} again {}'.format(account, threading.currentThread()))
 
 
 def test_ether_request_pool(counts):
@@ -59,7 +55,6 @@ async def create_account(data):
     password = _generate_password()
     w3 = get_w3()
     account = w3.personal.newAccount(password)
-    # _save_account_password(account, password)
     data[account] = password
     await asyncio.sleep(1)
 
@@ -92,17 +87,17 @@ def load_accounts(counts):
     return data
 
 
-def transact_to_coinbase(counts, value):
-    from app.src.memcheck import get_used_memory
+def transact_to_coinbase(counts, value, remote=None):
+    from backend.app.src.memcheck import get_used_memory
 
     accounts = load_accounts(counts)
     for account, password in accounts.items():
         try:
-            meminfo = get_used_memory(remote_addr=REMOTE)
+            meminfo = get_used_memory(remote_addr=remote)
             while meminfo.get("used") > 90:
                 print("memory busy: {}".format(meminfo))
                 time.sleep(10)
-                meminfo = get_used_memory(remote_addr=REMOTE)
+                meminfo = get_used_memory(remote_addr=remote)
             w3 = get_w3()
             w3.personal.unlockAccount(account, password)
             resp = w3.eth.sendTransaction({'from': account, "to": w3.eth.accounts[0], "value": value * 10 ** 15})
@@ -142,12 +137,13 @@ def run_cli():
     """
     Start cmd client.
     """
-    global STRATEGY, DATADIR
+    global STRATEGY, DATADIR, ETH_RPC_URL
 
     parser = argparse.ArgumentParser()
     parser.add_argument('mode', type=str,
                         help='Mode, create - Create accounts; run - Start request test ether;\
-                             load - Print accounts and password; transact - Send to coinbase;')
+                             load - Print accounts and password; transact - Send to coinbase;\
+                             schedule - "run" and "transact" in schedule;')
     parser.add_argument('-n', type=int, default=1,
                         help='Account number to operate, between 1 ~ 50, default as 1. Except coinbase.')
     parser.add_argument('-stg', type=int, default=0,
@@ -156,6 +152,8 @@ def run_cli():
                         help='Data storage file path, default "{}"'.format(DATADIR))
     parser.add_argument('-v', type=int, default=900,
                         help='How much finney to send.')
+    parser.add_argument('--rpcurl', type=str,
+                        help='Eth rpc connect url. default as http://localhost:8545')
 
     args = parser.parse_args()
 
@@ -170,6 +168,8 @@ def run_cli():
         STRATEGY = args.stg
     if args.data != DATADIR:
         DATADIR = args.data
+    if args.rpcurl:
+        ETH_RPC_URL = args.rpcurl
 
     # Run action
     if args.mode == 'create':
@@ -182,6 +182,18 @@ def run_cli():
     elif args.mode == 'transact':
         print("trasact could be unbearable slow cause only one account will be unlocked at one time till the memory released.")
         transact_to_coinbase(args.n, args.v)
+    elif args.mode == 'schedule':
+        def request_test_ether_schedule():
+            test_ether_request_pool(args.n)
+
+        def transact_to_coinbase_schedule():
+            remote = 'root@95.163.201.173:29744'
+            transact_to_coinbase(args.n, args.v, remote)
+
+        sched = BlockingScheduler(daemon=True)
+        sched.add_job(request_test_ether_schedule, 'interval', hours=13)
+        sched.add_job(transact_to_coinbase_schedule, 'interval', hours=14)
+        sched.start()
     else:
         parser.print_help()
 
