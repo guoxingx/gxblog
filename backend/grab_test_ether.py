@@ -21,6 +21,7 @@ URL = 'http://faucet.ropsten.be:3001/donate/{}'
 PORT = 3001
 STRATEGY = RequestStrategies.Null
 DATADIR = 'data_grab_test_ether'
+REMOTE = 'root@95.163.201.173:29744'
 
 
 def get_w3():
@@ -92,9 +93,16 @@ def load_accounts(counts):
 
 
 def transact_to_coinbase(counts, value):
+    from app.src.memcheck import get_used_memory
+
     accounts = load_accounts(counts)
     for account, password in accounts.items():
         try:
+            meminfo = get_used_memory(remote_addr=REMOTE)
+            while meminfo.get("used") > 90:
+                print("memory busy: {}".format(meminfo))
+                time.sleep(10)
+                meminfo = get_used_memory(remote_addr=REMOTE)
             w3 = get_w3()
             w3.personal.unlockAccount(account, password)
             resp = w3.eth.sendTransaction({'from': account, "to": w3.eth.accounts[0], "value": value * 10 ** 15})
