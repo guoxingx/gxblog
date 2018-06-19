@@ -3,6 +3,8 @@ FROM python:3
 COPY ./ /backend
 WORKDIR /backend
 RUN pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple
+RUN python -m solc.install v0.4.21
+ENV PATH="/root/.py-solc/solc-v0.4.21/bin:${PATH}"
 
 # FROM tiangolo/uwsgi-nginx:python3.6
 # 

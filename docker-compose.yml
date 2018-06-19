@@ -6,7 +6,7 @@ services:
         build: ./backend
         expose:
             - "8000"
-        network_mode: "host"
+              # network_mode: "host"
         env_file: .env
         environment:
             - TZ=PRC
@@ -21,7 +21,7 @@ services:
         build: ./nginx
         ports:
             - "80:80"
-        network_mode: "host"
+              # network_mode: "host"
         volumes:
             - ./frontend/dist:/gxblog
             - ./backend/app/static:/gxblog/resource/static

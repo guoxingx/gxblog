@@ -9,6 +9,7 @@ from .base import BaseModel
 from .. import db
 # from ..src.eth import ManagerConnector, IdentityConnector, Connector
 # from web3.auto import w3
+from solc import compile_files
 from web3.exceptions import BadFunctionCallOutput, MismatchedABI
 from ..utils import get_static_dir, to_checked_address, get_w3
 
@@ -16,6 +17,8 @@ from ..utils import get_static_dir, to_checked_address, get_w3
 w3 = get_w3()
 AbiFile = 'betonether_abi'
 ByteCodeFile = 'betonether_bytecode'
+ContractPath = get_static_dir('contracts/{}'.format('BetOnEther.sol'))
+ContractName = 'BetOnEther'
 
 
 class BetOnEther(BaseModel):
@@ -93,6 +96,35 @@ class BetOnEther(BaseModel):
                 db.session.commit()
                 self._contract = contract
                 return self._contract
+
+    @property
+    def abi(self):
+        try:
+            return getattr(self, '_abi')
+        except AttributeError:
+            self.compile()
+            return self._abi
+
+    @property
+    def bytecode(self):
+        try:
+            return getattr(self, '_bytecode')
+        except AttributeError:
+            self.compile()
+            return self._bytecode
+
+    def compile(self):
+        """
+        return: (abi, bytecode)
+        """
+        compiled_sol = compile_files([ContractPath])
+        contract_interface = compiled_sol['{}:{}'.format(ContractPath, ContractName)]
+        contract_interface = compiled_sol['<stdin>:Greeter']
+
+        self._abi = contract_interface['abi']
+        self._bytecode = contract_interface['bin']
+
+        return self.abi, self.bytecode
 
     def sync_data(self):
         """
@@ -191,7 +223,7 @@ class BetOnEther(BaseModel):
         host = to_checked_address(host)
         password = password or current_app.config.get('ETH_COINBASE_PASSWORD')
         w3.personal.unlockAccount(host, password)
-        contract = w3.eth.contract(abi=self.abi_text, bytecode=self.bytecode_text)
+        contract = w3.eth.contract(abi=self.abi, bytecode=self.bytecode)
         tx_hash = contract.constructor(
             w3.toHex(text=self.home), w3.toHex(text=self.visiting),
             w3.toHex(text=remarks), oddss,
@@ -229,7 +261,7 @@ class BetOnEther(BaseModel):
             pass
 
         address = to_checked_address(address or self.contract_address)
-        contract = w3.eth.contract(address=address, abi=self.abi_text)
+        contract = w3.eth.contract(address=address, abi=self.abi)
 
         return contract
 

@@ -13,3 +13,4 @@ requests
 web3
 apscheduler
 redis
+py-solc
